@@ -1,15 +1,45 @@
-version: '3.1'
+version: '3.8'
 services:
-  stats-server:
-    ports:
-      - "9090:9090"
-
-  stats-db:
-    image: postgres:14-alpine
-
-  ewm-service:
+  statistic:
+    build: statistic/
+    container_name: statistic
     ports:
       - "8080:8080"
+    depends_on:
+      - db2
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5433/explore-statistic
+      - spring.datasource.username=explore
+      - spring.datasource.password=explore
 
-  ewm-db:
-    image: postgres:14-alpine
+  server:
+    build: server/
+    container_name: explore-server
+    ports:
+      - "9090:9090"
+    depends_on:
+      - db
+    environment:
+      - spring.datasource.url=jdbc:postgresql://db:5432/explore
+      - spring.datasource.username=explore
+      - spring.datasource.password=explore
+
+  db:
+    image: postgres
+    container_name: explore
+    ports:
+      - "6541:5432"
+    environment:
+      - POSTGRES_DB=explore
+      - POSTGRES_USER=explore
+      - POSTGRES_PASSWORD=explore
+
+  db2:
+    image: postgres
+    container_name: explore-statistic
+    ports:
+      - "6542:5433"
+    environment:
+      - POSTGRES_DB=explore-statistic
+      - POSTGRES_USER=explore
+      - POSTGRES_PASSWORD=explore
