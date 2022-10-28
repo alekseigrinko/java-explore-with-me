@@ -25,4 +25,12 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and e.eventDate < ?4 ")
     Page<Event> getPublicAllEvents(String text, Integer category, boolean paid, LocalDateTime rangeStart,
                                    LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
+
+    @Query(" select e from Event e where (upper(e.state) like upper(concat('%', ?1, '%'))) " +
+            "and e.categoryId = ?2 " +
+            "and e.initiatorId = ?3 " +
+            "and e.eventDate > ?4 " +
+            "and e.eventDate < ?5 ")
+    Page<Event> getEventsForAdmin(String state, Integer category, Integer user, LocalDateTime rangeStart,
+                                   LocalDateTime rangeEnd, PageRequest pageRequest);
 }

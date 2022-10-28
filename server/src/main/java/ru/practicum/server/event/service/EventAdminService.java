@@ -9,8 +9,8 @@ import java.util.List;
 
 public interface EventAdminService {
 
-    List<EventResponseDto> getAllEvents(String text,List<Integer> categories, boolean paid, LocalDateTime rangeStart,
-                                       LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
+    List<EventResponseDto> getAllEvents(List<String> states,List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
+                                       LocalDateTime rangeEnd, PageRequest pageRequest);
 
     EventResponseDto updateEvent(long eventId, EventDto eventDto);
 

@@ -115,17 +115,15 @@ public class AdminController {
     @GetMapping( "/events")
     public List<EventResponseDto> getAllEvents(@RequestParam(value = "from", defaultValue = "0") int from,
                                                @RequestParam(value = "size", defaultValue = "10") int size,
-                                               @RequestParam(value = "text") String text,
+                                               @RequestParam(value = "states") List<String> states,
                                                @RequestParam(value = "categories") List<Integer> categories,
-                                               @RequestParam(value = "paid") boolean paid,
+                                               @RequestParam(value = "users") List<Integer> users,
                                                @RequestParam(value = "rangeStart") LocalDateTime rangeStart,
-                                               @RequestParam(value = "rangeEnd") LocalDateTime rangeEnd,
-                                               @RequestParam(value = "onlyAvailable", defaultValue = "false") boolean onlyAvailable,
-                                               @RequestParam(value = "sort", defaultValue = "EVENT_DATE, VIEWS") String sort
+                                               @RequestParam(value = "rangeEnd") LocalDateTime rangeEnd
     ) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("eventDate").descending());
-        return eventAdminService.getAllEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageRequest);
+        return eventAdminService.getAllEvents(states, categories, users, rangeStart, rangeEnd, pageRequest);
     }
 
     @PutMapping("/events/{eventId}")

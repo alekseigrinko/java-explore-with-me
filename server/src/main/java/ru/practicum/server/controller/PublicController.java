@@ -5,27 +5,27 @@ import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.service.CategoryPublicService;
-import ru.practicum.server.event.EventClient;
+import ru.practicum.server.compilation.dto.CompilationResponseDto;
+import ru.practicum.server.compilation.service.CompilationPublicService;
 import ru.practicum.server.event.dto.EventResponseDto;
 import ru.practicum.server.event.service.EventPublicService;
 
 import java.time.LocalDateTime;
-import java.util.ArrayList;
 import java.util.List;
 
 @RestController
 @RequestMapping
 public class PublicController {
 
-    EventClient eventClient;
-    EventPublicService eventPublicService;
-    CategoryPublicService categoryPublicService;
+    private final EventPublicService eventPublicService;
+    private final CategoryPublicService categoryPublicService;
+    private final CompilationPublicService compilationPublicService;
 
     public PublicController(EventPublicService eventPublicService, CategoryPublicService categoryPublicService,
-                            EventClient eventClient) {
+                            CompilationPublicService compilationPublicService) {
         this.eventPublicService = eventPublicService;
         this.categoryPublicService = categoryPublicService;
-        this.eventClient = eventClient;
+        this.compilationPublicService = compilationPublicService;
     }
 
     @GetMapping(path = "categories")
@@ -60,5 +60,18 @@ public class PublicController {
     @GetMapping(path = "events/{id}")
     public EventResponseDto getEvent(@PathVariable long id) {
         return eventPublicService.getEvent(id);
+    }
+
+    @GetMapping(path = "compilations/{compId}")
+    public CompilationResponseDto getCompilation(@PathVariable long compId) {
+        return compilationPublicService.getCompilation(compId);
+    }
+
+    @GetMapping(path = "compilations")
+    List<CompilationResponseDto> getAllCompilations(@RequestParam(value = "from", defaultValue = "0") int from,
+                                                    @RequestParam(value = "size", defaultValue = "10") int size) {
+        int page = from / size;
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
+        return compilationPublicService.getAllCompilations(pageRequest);
     }
 }

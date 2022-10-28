@@ -15,8 +15,8 @@ import java.util.List;
 @RequestMapping(path = "user")
 public class PrivateController {
 
-    final private RequestPrivateService requestPrivateService;
-    final private EventPrivateService eventPrivateService;
+    private final RequestPrivateService requestPrivateService;
+    private final EventPrivateService eventPrivateService;
 
     public PrivateController(RequestPrivateService requestPrivateService, EventPrivateService eventPrivateService) {
         this.requestPrivateService = requestPrivateService;
@@ -70,9 +70,9 @@ public class PrivateController {
     }
 
     @PatchMapping("/{userId}/events")
-        // обратить внимание
-    EventResponseDto canselEvent(@PathVariable long userId, @RequestBody EventDto eventDto) {
-        return eventPrivateService.updateEvent(userId, eventId, eventDto);
+    EventResponseDto updateEvent(@PathVariable long userId, @RequestBody EventDto eventDto) {
+       /* return eventPrivateService.updateEvent(userId, eventId, eventDto);*/ // eventId
+        return null;
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")

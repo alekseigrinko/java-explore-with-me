@@ -56,7 +56,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         Request request = requestRepository.findById(requestId).get();
         if (request.getStatus() == Status.CONFIRMED) {
             Event event = eventRepository.findById(request.getEvent()).get();
-            event.setParticipantLimit(false);
+            event.setLimit(false);
         }
         request.setStatus(Status.CANCELED);
         log.debug("Отменен запрос ID: " + requestId);
@@ -91,7 +91,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         request.setStatus(Status.CONFIRMED);
         log.debug("Подтвержден запрос ID: " + requestId);
         Event event = eventRepository.findById(eventId).get();
-        event.setParticipantLimit(true);
+        event.setLimit(true);
         return toRequestDto(requestRepository.save(request));
     }
 
@@ -102,7 +102,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         Request request = requestRepository.findById(requestId).get();
         if (request.getStatus() == Status.CONFIRMED) {
             Event event = eventRepository.findById(eventId).get();
-            event.setParticipantLimit(false);
+            event.setLimit(false);
         }
         request.setStatus(Status.REJECTED);
         log.debug("Отклонен запрос ID: " + requestId);

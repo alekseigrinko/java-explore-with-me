@@ -42,9 +42,9 @@ public class Event {
     @Column(name = "event_date")
     private LocalDateTime eventDate;
     @Column(name = "location_id")
-    long locationId;
+    private long locationId;
     @Column(name = "participant_limit")
-    long participantLimit;
+    private long participantLimit;
     @Column(name = "is_participant_limit")
-    boolean isParticipantLimit;
+    private boolean isLimit;
 }

@@ -28,7 +28,7 @@ import static ru.practicum.server.event.EventMapper.*;
 @Slf4j
 public class EventPrivateServiceImp implements EventPrivateService {
 
-    public final EventRepository eventRepository;
+    private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -111,14 +111,24 @@ public class EventPrivateServiceImp implements EventPrivateService {
         if (eventDto.getState() != null) {
             event.setState(eventDto.getState());
         }
-        /*if (eventDto.getCategoryId()!= 0) {
+        if (eventDto.getCategoryId() > 0) {
             event.setCategoryId(eventDto.getCategoryId());
-        }*/
+        }
+        event.setRequestModeration(eventDto.isRequestModeration());
         if (eventDto.getCreatedOn() != null) {
             event.setCreatedOn(eventDto.getCreatedOn());
         }
         if (eventDto.getEventDate() != null) {
             event.setEventDate(eventDto.getEventDate());
+        }
+        if (eventDto.getLocation() != null) {
+            Location location = locationRepository.save(new Location(
+                    null,
+                    eventDto.getLocation().getLat(),
+                    eventDto.getLocation().getLon()
+            ));
+            locationRepository.deleteById(event.getLocationId());
+            event.setLocationId(location.getId());
         }
         log.debug("Данные события обновлены: " + event);
         Location location = locationRepository.findById(event.getLocationId()).get();
@@ -159,7 +169,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
     }
 
     public void checkCreationTime(EventDto eventDto) {
-        if (eventDto.getEventDate().isAfter(LocalDateTime.now().minusHours(2))) {
+        if (eventDto.getEventDate().isBefore(LocalDateTime.now().minusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
             throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
         }

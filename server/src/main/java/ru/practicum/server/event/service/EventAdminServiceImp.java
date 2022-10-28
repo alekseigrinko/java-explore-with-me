@@ -20,7 +20,6 @@ import ru.practicum.server.user.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.server.event.EventMapper.toEventResponseDto;
 
@@ -28,7 +27,7 @@ import static ru.practicum.server.event.EventMapper.toEventResponseDto;
 @Slf4j
 public class EventAdminServiceImp implements EventAdminService {
 
-    public final EventRepository eventRepository;
+    private final EventRepository eventRepository;
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
@@ -43,10 +42,17 @@ public class EventAdminServiceImp implements EventAdminService {
 
 
     @Override
-    public List<EventResponseDto> getAllEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
-                                               LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest) {
-        List<Event> events = eventRepository.getPublicAllEvents(text, LocalDateTime.now(), pageRequest).stream()
-                .collect(Collectors.toList());
+    public List<EventResponseDto> getAllEvents(List<String> states, List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
+                                               LocalDateTime rangeEnd, PageRequest pageRequest) {
+        List<Event> events = new ArrayList<>();
+        for (String state : states) {
+            for (Integer categoryId : categories) {
+                for (Integer userId : users) {
+                    events.addAll(eventRepository.getEventsForAdmin(state, categoryId, userId, rangeStart,
+                            rangeEnd, pageRequest).toList());
+                }
+            }
+        }
         List<EventResponseDto> eventResponseDtos = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();

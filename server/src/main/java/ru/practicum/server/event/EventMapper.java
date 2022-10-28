@@ -35,7 +35,7 @@ public class EventMapper {
                 eventDto.getId(),
                 eventDto.getTitle(),
                 eventDto.getDescription(),
-                eventDto.getApplication(),
+                eventDto.getAnnotation(),
                 eventDto.getState(),
                 eventDto.getInitiatorId(),
                 eventDto.getCategoryId(),

@@ -1,12 +1,7 @@
 package ru.practicum.server.compilation.service;
 
-import org.springframework.data.domain.Page;
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.server.compilation.dto.CompilationDto;
 import ru.practicum.server.compilation.dto.CompilationResponseDto;
-import ru.practicum.server.user.dto.UserDto;
-
-import java.util.List;
 
 public interface CompilationAdminService {
 

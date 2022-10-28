@@ -17,7 +17,6 @@ import ru.practicum.server.user.model.User;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.server.event.EventMapper.toEventResponseDto;
 
@@ -39,10 +38,13 @@ public class EventPublicServiceImp implements EventPublicService {
     }
 
     @Override
-    public List<EventResponseDto> getAllEvents(String text,List<Integer> categories, boolean paid, LocalDateTime rangeStart,
+    public List<EventResponseDto> getAllEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                                LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest) {
-        List<Event> events = eventRepository.getPublicAllEvents(text, LocalDateTime.now(), pageRequest).stream()
-                .collect(Collectors.toList());
+        List<Event> events = new ArrayList<>();
+        for (Integer categoryId : categories) {
+            events.addAll(eventRepository.getPublicAllEvents(text, categoryId, paid, rangeStart,
+                    rangeEnd, onlyAvailable, pageRequest).toList());
+        }
         List<EventResponseDto> eventResponseDtos = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();
