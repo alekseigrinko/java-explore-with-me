@@ -22,8 +22,8 @@ public class Event {
     private String title;
     @Column(name = "description", nullable = false)
     private String description;
-    @Column(name = "application")
-    private String application;
+    @Column(name = "annotation")
+    private String annotation;
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
     private State state;
@@ -43,4 +43,8 @@ public class Event {
     private LocalDateTime eventDate;
     @Column(name = "location_id")
     long locationId;
+    @Column(name = "participant_limit")
+    long participantLimit;
+    @Column(name = "is_participant_limit")
+    boolean isParticipantLimit;
 }

@@ -18,8 +18,6 @@ public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "description", nullable = false)
-    private String description;
     @Column(name = "requester_id", nullable = false)
     private long requester;
     @Column(name = "event_id", nullable = false)

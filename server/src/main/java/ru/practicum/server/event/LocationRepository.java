@@ -1,4 +1,4 @@
-package ru.practicum.server.repository;
+package ru.practicum.server.event;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import ru.practicum.server.event.model.Location;

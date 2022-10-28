@@ -1,31 +1,36 @@
-package ru.practicum.server.service;
+package ru.practicum.server.user.service;
 
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.exeption.ObjectNotFoundException;
-import ru.practicum.server.service.UserService;
 import ru.practicum.server.user.UserMapper;
+import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.model.User;
-import ru.practicum.server.repository.UserRepository;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static ru.practicum.server.user.UserMapper.toUser;
+import static ru.practicum.server.user.UserMapper.toUserDto;
+
 @Service
 @Slf4j
-public class UserServiceImp implements UserService {
+public class UserAdminServiceImp implements UserAdminService {
 
     private final UserRepository userRepository;
 
-    public UserServiceImp(UserRepository userRepository) {
+    public UserAdminServiceImp(UserRepository userRepository) {
         this.userRepository = userRepository;
     }
 
     @Override
     public UserDto addUser(UserDto userDto) {
-        return UserMapper.toUserDto(userRepository.save(UserMapper.toUser(userDto)));
+        return toUserDto(userRepository.save(toUser(userDto)));
     }
 
     @Override
@@ -39,7 +44,7 @@ public class UserServiceImp implements UserService {
             userInMemory.setEmail(userDto.getEmail());
         }
         log.debug("Данные пользователя обновлены: " + userInMemory);
-        return UserMapper.toUserDto(userRepository.save(userInMemory));
+        return toUserDto(userRepository.save(userInMemory));
     }
 
     @Override
@@ -50,14 +55,19 @@ public class UserServiceImp implements UserService {
     }
 
     @Override
-    public UserDto getUser(long userId) {
-        checkUser(userId);
-        return UserMapper.toUserDto(userRepository.findById(userId).get());
+    public Page<UserDto> getUsers(List<Long> ids, PageRequest pageRequest) {
+        List<UserDto> userDtoList = new ArrayList<>();
+        for (long id : ids) {
+            checkUser(id);
+            userDtoList.add(toUserDto(userRepository.findById(id).get()));
+        }
+        Page<UserDto> userDtoPage = new PageImpl<>(userDtoList, pageRequest, pageRequest.getPageSize());
+        return userDtoPage;
     }
 
     @Override
     public UserDto deleteUser(long userId) {
-        UserDto userDto = UserMapper.toUserDto(userRepository.findById(userId).get());
+        UserDto userDto = toUserDto(userRepository.findById(userId).get());
         userRepository.deleteById(userId);
         return userDto;
     }

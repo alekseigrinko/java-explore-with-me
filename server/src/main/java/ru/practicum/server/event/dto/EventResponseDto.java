@@ -12,27 +12,40 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventDto {
+public class EventResponseDto {  //добавить просмотры и одобренные запросы
     private Long id;
     private String title;
     private String description;
     private String annotation;
     private State state;
-    private long initiatorId;
-    private long categoryId;
+    private UserResponseDto initiator;
+    private CategoryResponseDto category;
     private boolean paid;
     private boolean requestModeration;
     private LocalDateTime createdOn;
     private LocalDateTime publishedOn;
     private LocalDateTime eventDate;
-    LocationDto location;
+    LocationResponseDto location;
     long participantLimit;
 
     @Getter
     @AllArgsConstructor
-    public static class LocationDto {
+    public static class LocationResponseDto {
         private float lat;
         private float lon;
     }
 
+    @Getter
+    @AllArgsConstructor
+    public static class UserResponseDto {
+        private long id;
+        private String name;
+    }
+
+    @Getter
+    @AllArgsConstructor
+    public static class CategoryResponseDto {
+        private long id;
+        private String name;
+    }
 }
