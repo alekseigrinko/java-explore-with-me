@@ -7,10 +7,15 @@ import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.service.CategoryPublicService;
 import ru.practicum.server.compilation.dto.CompilationResponseDto;
 import ru.practicum.server.compilation.service.CompilationPublicService;
+import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.HitDto;
+import ru.practicum.server.event.model.SortEvent;
 import ru.practicum.server.event.service.EventPublicService;
 
+import javax.servlet.http.HttpServletRequest;
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -20,12 +25,15 @@ public class PublicController {
     private final EventPublicService eventPublicService;
     private final CategoryPublicService categoryPublicService;
     private final CompilationPublicService compilationPublicService;
+    private final EventClient eventClient;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public PublicController(EventPublicService eventPublicService, CategoryPublicService categoryPublicService,
-                            CompilationPublicService compilationPublicService) {
+                            CompilationPublicService compilationPublicService, EventClient eventClient) {
         this.eventPublicService = eventPublicService;
         this.categoryPublicService = categoryPublicService;
         this.compilationPublicService = compilationPublicService;
+        this.eventClient = eventClient;
     }
 
     @GetMapping(path = "categories")
@@ -47,18 +55,25 @@ public class PublicController {
                                                @RequestParam(value = "text") String text,
                                                @RequestParam(value = "categories") List<Integer> categories,
                                                @RequestParam(value = "paid") boolean paid,
-                                               @RequestParam(value = "rangeStart") LocalDateTime rangeStart,
-                                               @RequestParam(value = "rangeEnd") LocalDateTime rangeEnd,
+                                               @RequestParam(value = "rangeStart") String rangeStart,
+                                               @RequestParam(value = "rangeEnd") String rangeEnd,
                                                @RequestParam(value = "onlyAvailable", defaultValue = "false") boolean onlyAvailable,
-                                               @RequestParam(value = "sort", defaultValue = "EVENT_DATE, VIEWS") String sort
+                                               @RequestParam(value = "sort") SortEvent sort,
+                                               HttpServletRequest request
     ) {
         int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("eventDate").descending());
-        return eventPublicService.getAllEvents(text, categories, paid, rangeStart, rangeEnd, onlyAvailable, pageRequest);
+        final PageRequest pageRequest = PageRequest.of(page, size);
+        eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
+                request.getRemoteAddr(), LocalDateTime.now()));
+        LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
+        LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
+        return eventPublicService.getAllEvents(text, categories, paid, start, end, onlyAvailable, sort, pageRequest);
     }
 
     @GetMapping(path = "events/{id}")
-    public EventResponseDto getEvent(@PathVariable long id) {
+    public EventResponseDto getEvent(@PathVariable long id, HttpServletRequest request) {
+        eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
+                request.getRemoteAddr(), LocalDateTime.now()));
         return eventPublicService.getEvent(id);
     }
 

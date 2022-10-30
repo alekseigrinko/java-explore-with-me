@@ -25,6 +25,7 @@ public class CategoryPublicServiceImp implements CategoryPublicService {
 
     @Override
     public List<CategoryDto> getAllCategories(PageRequest pageRequest) {
+        log.debug("Получен список категорий");
         return categoryRepository.findAll(pageRequest).stream()
                 .map(CategoryMapper::toCategoryDto)
                 .collect(Collectors.toList());
@@ -33,6 +34,7 @@ public class CategoryPublicServiceImp implements CategoryPublicService {
     @Override
     public CategoryDto getCategory(long categoryId) {
         checkCategory(categoryId);
+        log.debug("Предоставлены данные категории ID: " + categoryId);
         return toCategoryDto(categoryRepository.findById(categoryId).get());
     }
 

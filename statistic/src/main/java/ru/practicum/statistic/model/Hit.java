@@ -13,15 +13,17 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Table(name = "event_statistics")
-public class EventStatistic {
+@Table(name = "hits")
+public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-    @Column(name = "event_id", nullable = false)
-    private long eventId;
-    @Column(name = "author_id", nullable = false)
-    private long authorId;
-    @Column(name = "created")
-    private LocalDateTime created;
+    @Column(name = "app", nullable = false)
+    private String app;
+    @Column(name = "uri", nullable = false)
+    private String uri;
+    @Column(name = "ip", nullable = false)
+    private String ip;
+    @Column(name = "timestamp")
+    private LocalDateTime timestamp;
 }

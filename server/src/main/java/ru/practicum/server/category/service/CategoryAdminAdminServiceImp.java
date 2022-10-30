@@ -22,13 +22,14 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
 
     @Override
     public CategoryDto addCategory(CategoryDto categoryDto) {
+        log.debug("Добавлена категория " + categoryDto.getName());
         return toCategoryDto(categoryRepository.save(toCategory(categoryDto)));
     }
 
     @Override
-    public CategoryDto updateCategory(long categoryId, CategoryDto categoryDto) {
-        checkCategory(categoryId);
-        Category categoryInMemory = categoryRepository.findById(categoryId).get();
+    public CategoryDto updateCategory(CategoryDto categoryDto) {
+        checkCategory(categoryDto.getId());
+        Category categoryInMemory = categoryRepository.findById(categoryDto.getId()).get();
         if (categoryDto.getName() != null) {
             categoryInMemory.setName(categoryDto.getName());
         }
@@ -40,6 +41,7 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
     public CategoryDto deleteCategory(long categoryId) {
         CategoryDto categoryDto = toCategoryDto(categoryRepository.findById(categoryId).get());
         categoryRepository.deleteById(categoryId);
+        log.debug("Удалена категория ID: " + categoryId);
         return categoryDto;
     }
 

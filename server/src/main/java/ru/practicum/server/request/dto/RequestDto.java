@@ -6,7 +6,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 import ru.practicum.server.request.model.Status;
 
-import javax.persistence.*;
 import java.time.LocalDateTime;
 
 @Getter

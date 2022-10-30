@@ -8,10 +8,10 @@
         <version>0.0.1-SNAPSHOT</version>
     </parent>
 
-    <artifactId>explore-statistic</artifactId>
+    <artifactId>ewm-statistic-service</artifactId>
     <version>0.0.1-SNAPSHOT</version>
 
-    <name>Explore Statistic</name>
+    <name>ewm-statistic-service</name>
 
     <dependencies>
         <dependency>

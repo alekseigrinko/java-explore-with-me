@@ -9,11 +9,13 @@ import ru.practicum.server.compilation.EventCompilationRepository;
 import ru.practicum.server.compilation.dto.CompilationResponseDto;
 import ru.practicum.server.compilation.model.Compilation;
 import ru.practicum.server.compilation.model.EventCompilation;
+import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.LocationRepository;
 import ru.practicum.server.event.dto.EventResponseDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 
 import java.util.ArrayList;
@@ -33,15 +35,19 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
     private final LocationRepository locationRepository;
+    private final RequestRepository requestRepository;
+    private final EventClient eventClient;
 
     public CompilationPublicServiceImp(EventRepository eventRepository, CompilationRepository compilationRepository,
-                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository, UserRepository userRepository, LocationRepository locationRepository) {
+                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository, UserRepository userRepository, LocationRepository locationRepository, RequestRepository requestRepository, EventClient eventClient) {
         this.eventRepository = eventRepository;
         this.compilationRepository = compilationRepository;
         this.eventCompilationRepository = eventCompilationRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
         this.locationRepository = locationRepository;
+        this.requestRepository = requestRepository;
+        this.eventClient = eventClient;
     }
 
     @Override
@@ -60,7 +66,9 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
                     event,
                     userRepository.findById(event.getInitiatorId()).get(),
                     categoryRepository.findById(event.getCategoryId()).get(),
-                    locationRepository.findById(event.getLocationId()).get()
+                    locationRepository.findById(event.getLocationId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(event.getId())
             ));
         }
         log.debug("Предоставлены данные событий по подборке ID: " + compilationId);
@@ -84,8 +92,10 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
                         event,
                         userRepository.findById(event.getInitiatorId()).get(),
                         categoryRepository.findById(event.getCategoryId()).get(),
-                        locationRepository.findById(event.getLocationId()).get()
-                ));
+                        locationRepository.findById(event.getLocationId()).get(),
+                        eventClient.getViews(event.getId()),
+                        requestRepository.getEventParticipantLimit(event.getId()
+                )));
             }
             compilationResponseDtoList.add(toCompilationResponseDto(compilation, events));
         }

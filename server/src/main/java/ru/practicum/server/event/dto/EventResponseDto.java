@@ -7,12 +7,13 @@ import lombok.Setter;
 import ru.practicum.server.event.model.State;
 
 import java.time.LocalDateTime;
+import java.util.Comparator;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class EventResponseDto {  //добавить просмотры и одобренные запросы
+public class EventResponseDto {
     private Long id;
     private String title;
     private String description;
@@ -27,6 +28,9 @@ public class EventResponseDto {  //добавить просмотры и одо
     private LocalDateTime eventDate;
     LocationResponseDto location;
     long participantLimit;
+    long views;
+    long confirmedRequests;
+
 
     @Getter
     @AllArgsConstructor

@@ -16,6 +16,7 @@ import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.service.UserAdminService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -26,7 +27,7 @@ public class AdminController {
     private final UserAdminService userAdminService;
     private final CompilationAdminService compilationAdminService;
     private final EventAdminService eventAdminService;
-
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public AdminController(CategoryAdminService categoryAdminService, UserAdminService userAdminService,
                            CompilationAdminService compilationAdminService, EventAdminService eventAdminService) {
@@ -42,10 +43,9 @@ public class AdminController {
     }
 
 
-    @PatchMapping("/categories/{id}")
-    CategoryDto updateCategory(@PathVariable long id,
-                               @RequestBody CategoryDto categoryDto) {
-        return categoryAdminService.updateCategory(id, categoryDto);
+    @PatchMapping("/categories")
+    CategoryDto updateCategory(@RequestBody CategoryDto categoryDto) {
+        return categoryAdminService.updateCategory(categoryDto);
     }
 
     @DeleteMapping("/categories/{id}")
@@ -62,7 +62,7 @@ public class AdminController {
     List<UserDto> getAllUsers(@RequestParam(value = "from", defaultValue = "0") int from,
                               @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
         return userAdminService.getAllUsers(pageRequest);
     }
 
@@ -71,7 +71,7 @@ public class AdminController {
                            @RequestParam(value = "from", defaultValue = "0") int from,
                            @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
         return userAdminService.getUsers(ids, pageRequest);
     }
 
@@ -118,12 +118,14 @@ public class AdminController {
                                                @RequestParam(value = "states") List<String> states,
                                                @RequestParam(value = "categories") List<Integer> categories,
                                                @RequestParam(value = "users") List<Integer> users,
-                                               @RequestParam(value = "rangeStart") LocalDateTime rangeStart,
-                                               @RequestParam(value = "rangeEnd") LocalDateTime rangeEnd
+                                               @RequestParam(value = "rangeStart") String rangeStart,
+                                               @RequestParam(value = "rangeEnd") String rangeEnd
     ) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("eventDate").descending());
-        return eventAdminService.getAllEvents(states, categories, users, rangeStart, rangeEnd, pageRequest);
+        LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
+        LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
+        return eventAdminService.getAllEvents(states, categories, users, start, end, pageRequest);
     }
 
     @PutMapping("/events/{eventId}")

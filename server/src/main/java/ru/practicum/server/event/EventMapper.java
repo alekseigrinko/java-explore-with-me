@@ -50,7 +50,8 @@ public class EventMapper {
         );
     }
 
-    public static EventResponseDto toEventResponseDto(Event event, User user, Category category, Location location) {
+    public static EventResponseDto toEventResponseDto(Event event, User user, Category category, Location location,
+                                                      long views, long confirmedRequests) {
         return new EventResponseDto(
                 event.getId(),
                 event.getTitle(),
@@ -74,7 +75,9 @@ public class EventMapper {
                         location.getLat(),
                         location.getLon()
                 ),
-                event.getParticipantLimit()
+                event.getParticipantLimit(),
+                views,
+                confirmedRequests
         );
     }
 }

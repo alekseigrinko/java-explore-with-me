@@ -46,6 +46,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
                 LocalDateTime.now(),
                 checkStatusRequest(eventId)
         );
+        log.debug("Добавлен запрос на участие в событии ID: " + eventId);
         return toRequestDto(requestRepository.save(toRequest(requestDto)));
     }
 

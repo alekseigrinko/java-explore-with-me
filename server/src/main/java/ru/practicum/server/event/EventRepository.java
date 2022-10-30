@@ -22,8 +22,8 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and e.paid = ?3 " +
             "and e.eventDate > ?4 " +
             "and e.eventDate < ?5 " +
-            "and e.eventDate < ?4 ")
-    Page<Event> getPublicAllEvents(String text, Integer category, boolean paid, LocalDateTime rangeStart,
+            "and e.isLimit = ?6 ")
+    Page<Event> getPublicAllEvents(String text, long category, boolean paid, LocalDateTime rangeStart,
                                    LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
 
     @Query(" select e from Event e where (upper(e.state) like upper(concat('%', ?1, '%'))) " +

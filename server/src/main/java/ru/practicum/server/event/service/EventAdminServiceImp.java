@@ -5,6 +5,7 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.model.Category;
+import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.LocationRepository;
 import ru.practicum.server.event.dto.EventDto;
@@ -14,6 +15,7 @@ import ru.practicum.server.event.model.Location;
 import ru.practicum.server.event.model.State;
 import ru.practicum.server.exeption.BadRequestException;
 import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
 
@@ -31,13 +33,17 @@ public class EventAdminServiceImp implements EventAdminService {
     private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
+    private final RequestRepository requestRepository;
+    private final EventClient eventClient;
 
     public EventAdminServiceImp(EventRepository eventRepository, LocationRepository locationRepository,
-                                UserRepository userRepository, CategoryRepository categoryRepository) {
+                                UserRepository userRepository, CategoryRepository categoryRepository, RequestRepository requestRepository, EventClient eventClient) {
         this.eventRepository = eventRepository;
         this.locationRepository = locationRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
+        this.requestRepository = requestRepository;
+        this.eventClient = eventClient;
     }
 
 
@@ -58,7 +64,8 @@ public class EventAdminServiceImp implements EventAdminService {
             User user = userRepository.findById(event.getInitiatorId()).get();
             Category category = categoryRepository.findById(event.getCategoryId()).get();
             Location location = locationRepository.findById(event.getLocationId()).get();
-            eventResponseDtos.add(toEventResponseDto(event, user, category, location));
+            eventResponseDtos.add(toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(event.getId())));
         }
         log.debug("Предоставлены данные по событиям");
         return eventResponseDtos;
@@ -109,7 +116,8 @@ public class EventAdminServiceImp implements EventAdminService {
         Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(event, user, category, location);
+        return toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
+                requestRepository.getEventParticipantLimit(event.getId()));
     }
 
     @Override
@@ -122,7 +130,8 @@ public class EventAdminServiceImp implements EventAdminService {
         Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(eventRepository.save(event), user, category, location);
+        return toEventResponseDto(eventRepository.save(event), user, category, location, eventClient.getViews(event.getId()),
+                requestRepository.getEventParticipantLimit(event.getId()));
     }
 
     @Override
@@ -136,7 +145,8 @@ public class EventAdminServiceImp implements EventAdminService {
         Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(event, user, category, location);
+        return toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
+                requestRepository.getEventParticipantLimit(event.getId()));
     }
 
     public void checkEvent(long eventId) {

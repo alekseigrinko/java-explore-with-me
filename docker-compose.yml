@@ -1,8 +1,8 @@
 version: '3.8'
 services:
   statistic:
-    build: statistic/
-    container_name: statistic
+    build: ewm-statistic-service/
+    container_name: ewm-statistic-service
     ports:
       - "9090:9090"
     depends_on:
@@ -13,8 +13,8 @@ services:
       - spring.datasource.password=explore
 
   server:
-    build: server/
-    container_name: explore-server
+    build: ewm-main-service/
+    container_name: ewm-main-service
     ports:
       - "8080:8080"
     depends_on:

@@ -36,7 +36,7 @@ public class PrivateController {
         return requestPrivateService.canceledRequest(requestId, userId);
     }
 
-    @GetMapping("/{userId}/requests/")
+    @GetMapping("/{userId}/requests")
     List<RequestDto> getUserRequest(@PathVariable long userId) {
         return requestPrivateService.getAllUsersRequests(userId);
     }
@@ -71,8 +71,7 @@ public class PrivateController {
 
     @PatchMapping("/{userId}/events")
     EventResponseDto updateEvent(@PathVariable long userId, @RequestBody EventDto eventDto) {
-       /* return eventPrivateService.updateEvent(userId, eventId, eventDto);*/ // eventId
-        return null;
+       return eventPrivateService.updateEvent(userId, eventDto.getId(), eventDto);
     }
 
     @GetMapping("/{userId}/events/{eventId}/requests")

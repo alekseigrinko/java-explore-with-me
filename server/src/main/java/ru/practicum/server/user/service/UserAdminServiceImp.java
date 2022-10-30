@@ -30,6 +30,7 @@ public class UserAdminServiceImp implements UserAdminService {
 
     @Override
     public UserDto addUser(UserDto userDto) {
+        log.debug("Зарегистрирован пользователь " + userDto.getName());
         return toUserDto(userRepository.save(toUser(userDto)));
     }
 
@@ -49,6 +50,7 @@ public class UserAdminServiceImp implements UserAdminService {
 
     @Override
     public List<UserDto> getAllUsers(PageRequest pageRequest) {
+        log.debug("Предоставлены данные пользователей по запросу");
         return userRepository.findAll(pageRequest).stream()
                 .map(UserMapper::toUserDto)
                 .collect(Collectors.toList());
@@ -62,6 +64,7 @@ public class UserAdminServiceImp implements UserAdminService {
             userDtoList.add(toUserDto(userRepository.findById(id).get()));
         }
         Page<UserDto> userDtoPage = new PageImpl<>(userDtoList, pageRequest, pageRequest.getPageSize());
+        log.debug("Предоставлены данные выбранных пользователей: " + ids);
         return userDtoPage;
     }
 
@@ -69,6 +72,7 @@ public class UserAdminServiceImp implements UserAdminService {
     public UserDto deleteUser(long userId) {
         UserDto userDto = toUserDto(userRepository.findById(userId).get());
         userRepository.deleteById(userId);
+        log.debug("Удален пользователь ID: " + userId);
         return userDto;
     }
 
