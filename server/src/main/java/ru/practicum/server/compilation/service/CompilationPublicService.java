@@ -7,7 +7,7 @@ import java.util.List;
 
 public interface CompilationPublicService {
 
-    List<CompilationDto> getAllCompilations(PageRequest pageRequest);
+    List<CompilationDto> getAllCompilations(boolean pinned, PageRequest pageRequest);
 
     CompilationDto getCompilation(long compilationId);
 

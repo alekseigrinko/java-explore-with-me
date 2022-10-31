@@ -1,5 +1,6 @@
 package ru.practicum.server.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -22,6 +23,7 @@ import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
+@Slf4j
 @RequestMapping(path = "admin")
 public class AdminController {
 
@@ -47,6 +49,7 @@ public class AdminController {
 
     @PatchMapping("/categories")
     CategoryDto updateCategory(@RequestBody CategoryDto categoryDto) {
+        log.debug("Переданы данные для регистрации категории");
         return categoryAdminService.updateCategory(categoryDto);
     }
 

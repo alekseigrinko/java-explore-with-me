@@ -42,9 +42,9 @@ public class Event {
     private LocalDateTime publishedOn;
     @Column(name = "event_date")
     private LocalDateTime eventDate;
-    @Column(name = "lan_location")
+    @Column(name = "lat_location")
     private float latLocation;
-    @Column(name = "lon_location_id")
+    @Column(name = "lon_location")
     private float lonLocation;
     @Column(name = "participant_limit")
     private long participantLimit;

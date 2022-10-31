@@ -74,8 +74,8 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     }
 
     @Override
-    public List<CompilationDto> getAllCompilations(PageRequest pageRequest) {
-        List<Compilation> compilations = compilationRepository.findAll(pageRequest).toList();
+    public List<CompilationDto> getAllCompilations(boolean pinned, PageRequest pageRequest) {
+        List<Compilation> compilations = compilationRepository.findAllByPinned(pinned, pageRequest);
         List<CompilationDto> compilationDtoList = new ArrayList<>();
         for (Compilation compilation : compilations) {
             List<EventCompilation> eventCompilationList = eventCompilationRepository.findAllByCompilationId(compilation.getId());

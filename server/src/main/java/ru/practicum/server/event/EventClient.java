@@ -46,7 +46,7 @@ public class EventClient extends BaseClient {
     public long getViews(long eventId) {
         String uri = "events/" + eventId;
         Map<String, Object> parameters = Map.of(
-                "uris", uri
+                "uri", uri
         );
         ResponseEntity<Object> response = get("/views?uri={uri}", parameters);
         String bodyResponse = response.getBody().toString();

@@ -48,9 +48,9 @@ public class EventMapper {
                         category.getName()
                 ),
                 confirmedRequests,
-                event.getCreatedOn().toString(),
+                event.getCreatedOn().format(formatter),
                 event.getDescription(),
-                event.getEventDate().toString(),
+                event.getEventDate().format(formatter),
                 event.getId(),
                 new UserShortDto(
                         user.getId(),
@@ -62,7 +62,7 @@ public class EventMapper {
                 ),
                 event.isPaid(),
                 event.getParticipantLimit(),
-                event.getPublishedOn().toString(),
+                getPublished(event),
                 event.isRequestModeration(),
                 event.getState().toString(),
                 event.getTitle(),
@@ -71,7 +71,7 @@ public class EventMapper {
     }
 
     public static EventShortDto toEventShortDto(Event event, User user, Category category,
-                                               long views, long confirmedRequests) {
+                                                long views, long confirmedRequests) {
         return new EventShortDto(
                 event.getAnnotation(),
                 new CategoryDto(
@@ -79,7 +79,7 @@ public class EventMapper {
                         category.getName()
                 ),
                 confirmedRequests,
-                event.getEventDate().toString(),
+                event.getEventDate().format(formatter),
                 event.getId(),
                 new UserShortDto(
                         user.getId(),
@@ -88,5 +88,13 @@ public class EventMapper {
                 event.getTitle(),
                 views
         );
+    }
+
+    static String getPublished(Event event) {
+        if (event.getPublishedOn() == null) {
+            return null;
+        } else {
+            return event.getPublishedOn().format(formatter);
+        }
     }
 }

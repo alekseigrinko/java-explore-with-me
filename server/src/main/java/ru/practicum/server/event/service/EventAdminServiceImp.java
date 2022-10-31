@@ -46,7 +46,6 @@ public class EventAdminServiceImp implements EventAdminService {
         this.eventClient = eventClient;
     }
 
-
     @Override
     public List<EventFullDto> getAllEvents(List<String> states, List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, PageRequest pageRequest) {

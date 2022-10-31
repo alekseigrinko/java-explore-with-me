@@ -11,7 +11,7 @@ import java.time.LocalDateTime;
 public interface EventRepository extends JpaRepository<Event, Long> {
 
     @Query("select e from Event e " +
-            " where e.initiatorId = ?2" +
+            " where e.initiatorId = ?1" +
             " order by e.createdOn desc ")
     Page<Event> getAllUserEvents(long userId, PageRequest pageRequest);
 

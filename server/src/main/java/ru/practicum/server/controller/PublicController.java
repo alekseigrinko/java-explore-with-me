@@ -73,7 +73,7 @@ public class PublicController {
     @GetMapping(path = "events/{id}")
     public EventFullDto getEvent(@PathVariable long id, HttpServletRequest request) {
         eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
-                request.getRemoteAddr(), LocalDateTime.now().toString()));
+                request.getRemoteAddr(), LocalDateTime.now().format(formatter)));
         return eventPublicService.getEvent(id);
     }
 
@@ -84,9 +84,11 @@ public class PublicController {
 
     @GetMapping(path = "compilations")
     List<CompilationDto> getAllCompilations(@RequestParam(value = "from", defaultValue = "0") int from,
-                                            @RequestParam(value = "size", defaultValue = "10") int size) {
+                                            @RequestParam(value = "size", defaultValue = "10") int size,
+                                            @RequestParam(value = "pinned") boolean pinned
+    ) {
         int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
-        return compilationPublicService.getAllCompilations(pageRequest);
+        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("title").ascending());
+        return compilationPublicService.getAllCompilations(pinned, pageRequest);
     }
 }
