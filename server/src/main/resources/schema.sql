@@ -34,7 +34,7 @@ CREATE TABLE IF NOT EXISTS events
     lon_location          FLOAT                                   NOT NULL,
     CONSTRAINT pk_event PRIMARY KEY (id),
     CONSTRAINT fk_event_on_author FOREIGN KEY (initiator_id) REFERENCES users (id),
-    CONSTRAINT fk_event_on_category FOREIGN KEY (category_id) REFERENCES categories (id),
+    CONSTRAINT fk_event_on_category FOREIGN KEY (category_id) REFERENCES categories (id)
 );
 
 CREATE TABLE IF NOT EXISTS requests
