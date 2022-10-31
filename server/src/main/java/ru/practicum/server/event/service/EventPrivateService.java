@@ -1,19 +1,20 @@
 package ru.practicum.server.event.service;
 
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.server.event.dto.EventDto;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.NewEventDto;
+import ru.practicum.server.event.dto.EventFullDto;
+import ru.practicum.server.event.dto.UpdateEventRequest;
 
 import java.util.List;
 
 public interface EventPrivateService {
 
-    List<EventResponseDto> getAllUserEvents(long userId, PageRequest pageRequest);
-    EventResponseDto getUserEventById(long userId, long eventId);
+    List<EventFullDto> getAllUserEvents(long userId, PageRequest pageRequest);
+    EventFullDto getUserEventById(long userId, long eventId);
 
-    EventResponseDto addEvent(long userId, EventDto eventDto);
+    EventFullDto addEvent(long userId, NewEventDto newEventDto);
 
-    EventResponseDto updateEvent(long userId, long eventId, EventDto eventDto);
+    EventFullDto updateEvent(long userId, UpdateEventRequest updateEventRequest);
 
-    EventResponseDto cancelEvent(long userId, long eventId);
+    EventFullDto cancelEvent(long userId, long eventId);
 }

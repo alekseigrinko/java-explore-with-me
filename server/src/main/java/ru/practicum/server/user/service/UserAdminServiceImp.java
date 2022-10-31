@@ -8,6 +8,7 @@ import org.springframework.stereotype.Service;
 import ru.practicum.server.exeption.ObjectNotFoundException;
 import ru.practicum.server.user.UserMapper;
 import ru.practicum.server.user.UserRepository;
+import ru.practicum.server.user.dto.NewUserRequest;
 import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.model.User;
 
@@ -29,9 +30,9 @@ public class UserAdminServiceImp implements UserAdminService {
     }
 
     @Override
-    public UserDto addUser(UserDto userDto) {
-        log.debug("Зарегистрирован пользователь " + userDto.getName());
-        return toUserDto(userRepository.save(toUser(userDto)));
+    public UserDto addUser(NewUserRequest newUserRequest) {
+        log.debug("Зарегистрирован пользователь " + newUserRequest.getName());
+        return toUserDto(userRepository.save(toUser(newUserRequest)));
     }
 
     @Override

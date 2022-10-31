@@ -10,9 +10,7 @@ import javax.validation.constraints.NotNull;
 @Getter
 @Setter
 @AllArgsConstructor
-public class CategoryDto {
-    @NotNull
-    private Long id;
+public class NewCategoryDto {
     @NotBlank
     private String name;
 }

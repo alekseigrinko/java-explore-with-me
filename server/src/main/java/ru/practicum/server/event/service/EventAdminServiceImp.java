@@ -8,8 +8,9 @@ import ru.practicum.server.category.model.Category;
 import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.LocationRepository;
-import ru.practicum.server.event.dto.EventDto;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.AdminUpdateEventRequest;
+import ru.practicum.server.event.dto.NewEventDto;
+import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.Location;
 import ru.practicum.server.event.model.State;
@@ -20,26 +21,28 @@ import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.server.event.EventMapper.toEventResponseDto;
+import static ru.practicum.server.event.EventMapper.toEventFullDto;
 
 @Service
 @Slf4j
 public class EventAdminServiceImp implements EventAdminService {
 
     private final EventRepository eventRepository;
-    private final LocationRepository locationRepository;
     private final UserRepository userRepository;
     private final CategoryRepository categoryRepository;
     private final RequestRepository requestRepository;
     private final EventClient eventClient;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
-    public EventAdminServiceImp(EventRepository eventRepository, LocationRepository locationRepository,
-                                UserRepository userRepository, CategoryRepository categoryRepository, RequestRepository requestRepository, EventClient eventClient) {
+
+    public EventAdminServiceImp(EventRepository eventRepository, UserRepository userRepository,
+                                CategoryRepository categoryRepository, RequestRepository requestRepository,
+                                EventClient eventClient) {
         this.eventRepository = eventRepository;
-        this.locationRepository = locationRepository;
         this.userRepository = userRepository;
         this.categoryRepository = categoryRepository;
         this.requestRepository = requestRepository;
@@ -48,8 +51,8 @@ public class EventAdminServiceImp implements EventAdminService {
 
 
     @Override
-    public List<EventResponseDto> getAllEvents(List<String> states, List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
-                                               LocalDateTime rangeEnd, PageRequest pageRequest) {
+    public List<EventFullDto> getAllEvents(List<String> states, List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
+                                           LocalDateTime rangeEnd, PageRequest pageRequest) {
         List<Event> events = new ArrayList<>();
         for (String state : states) {
             for (Integer categoryId : categories) {
@@ -59,93 +62,83 @@ public class EventAdminServiceImp implements EventAdminService {
                 }
             }
         }
-        List<EventResponseDto> eventResponseDtos = new ArrayList<>();
+        List<EventFullDto> eventFullDtos = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();
             Category category = categoryRepository.findById(event.getCategoryId()).get();
-            Location location = locationRepository.findById(event.getLocationId()).get();
-            eventResponseDtos.add(toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
+            eventFullDtos.add(toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
                     requestRepository.getEventParticipantLimit(event.getId())));
         }
         log.debug("Предоставлены данные по событиям");
-        return eventResponseDtos;
+        return eventFullDtos;
     }
 
     @Override
-    public EventResponseDto updateEvent(long eventId, EventDto eventDto) {
+    public EventFullDto updateEvent(long eventId, AdminUpdateEventRequest adminUpdateEventRequest) {
         checkEvent(eventId);
         Event event = eventRepository.findById(eventId).get();
-        if (eventDto.isRequestModeration()) {
+        if (adminUpdateEventRequest.getEventDate() != null) {
+            checkCreationTime(adminUpdateEventRequest.getEventDate());
+            event.setEventDate(LocalDateTime.parse(adminUpdateEventRequest.getEventDate(), formatter));
+        }
+        if (eventRepository.findById(eventId).get().isRequestModeration()) {
             log.warn("Событие уже подтверждено и не подлежит изменению");
             throw new BadRequestException("Событие уже подтверждено и не подлежит изменению");
         }
-        if (eventDto.getTitle() != null) {
-            event.setTitle(eventDto.getTitle());
+        if (adminUpdateEventRequest.getTitle() != null) {
+            event.setTitle(adminUpdateEventRequest.getTitle());
         }
-        if (eventDto.getDescription() != null) {
-            event.setDescription(eventDto.getDescription());
+        if (adminUpdateEventRequest.getDescription() != null) {
+            event.setDescription(adminUpdateEventRequest.getDescription());
         }
-        if (eventDto.getAnnotation() != null) {
-            event.setAnnotation(eventDto.getAnnotation());
+        if (adminUpdateEventRequest.getAnnotation() != null) {
+            event.setAnnotation(adminUpdateEventRequest.getAnnotation());
         }
-        if (eventDto.getEventDate() != null) {
-            if (eventDto.getEventDate().isAfter(LocalDateTime.now().minusHours(2))) {
-                log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
-                throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
+        if (adminUpdateEventRequest.getCategory() > 0) {
+            event.setCategoryId(adminUpdateEventRequest.getCategory());
+        }
+        if (adminUpdateEventRequest.getParticipantLimit() > 0) {
+            if (requestRepository.getEventParticipantLimit(eventId)
+                    > adminUpdateEventRequest.getParticipantLimit()) {
+                log.warn("Обновление лимита участников события недоступно, так как подтвержденных запросов больше " +
+                        "предлагаемого лимита. Отмените ряд запросов");
+            } else {
+                event.setParticipantLimit(adminUpdateEventRequest.getParticipantLimit());
+                event.setLimit(false);
             }
-            event.setEventDate(eventDto.getEventDate());
         }
-        if (eventDto.getLocation() != null) {
-            Location location = locationRepository.save(new Location(
-                    null,
-                    eventDto.getLocation().getLat(),
-                    eventDto.getLocation().getLon()
-            ));
-            locationRepository.deleteById(event.getLocationId());
-            event.setLocationId(location.getId());
-        }
-        if (eventDto.getCategoryId() > 0) {
-            event.setCategoryId(eventDto.getCategoryId());
-        }
-        if (eventDto.getParticipantLimit() > 0) {
-            event.setParticipantLimit(eventDto.getParticipantLimit());
-        }
-        event.setPaid(eventDto.isPaid());
-        event.setRequestModeration(eventDto.isRequestModeration());
+        event.setPaid(adminUpdateEventRequest.isPaid());
         log.debug("Данные события обновлены: " + event);
-        Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
-                requestRepository.getEventParticipantLimit(event.getId()));
+        return toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
+                requestRepository.getEventParticipantLimit(eventId));
     }
 
     @Override
-    public EventResponseDto publishEvent(long eventId) {
+    public EventFullDto publishEvent(long eventId) {
         checkEvent(eventId);
         checkEventParam(eventId);
         Event event = eventRepository.findById(eventId).get();
-        event.setState(State.PUBLISHER);
+        event.setState(State.PUBLISHED);
         log.debug("Опубликовано событие: " + event);
-        Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(eventRepository.save(event), user, category, location, eventClient.getViews(event.getId()),
+        return toEventFullDto(eventRepository.save(event), user, category, eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(event.getId()));
     }
 
     @Override
-    public EventResponseDto rejectEvent(long eventId) {
+    public EventFullDto rejectEvent(long eventId) {
         checkEvent(eventId);
         checkEventParam(eventId);
         Event event = eventRepository.findById(eventId).get();
         event.setState(State.CANCELED);
         eventRepository.save(event);
         log.debug("Отклонено событие: " + event);
-        Location location = locationRepository.findById(event.getLocationId()).get();
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
-        return toEventResponseDto(event, user, category, location, eventClient.getViews(event.getId()),
+        return toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(event.getId()));
     }
 
@@ -171,6 +164,13 @@ public class EventAdminServiceImp implements EventAdminService {
         if (eventRepository.findById(eventId).get().getState() != State.PENDING) {
             log.warn("Событие должно быть в состоянии ожидании публикации");
             throw new BadRequestException("Событие должно быть в состоянии ожидании публикации");
+        }
+    }
+
+    public void checkCreationTime(String time) {
+        if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().minusHours(2))) {
+            log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
+            throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
         }
     }
 }

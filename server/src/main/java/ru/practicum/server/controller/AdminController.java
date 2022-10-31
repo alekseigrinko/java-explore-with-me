@@ -5,13 +5,15 @@ import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.category.dto.CategoryDto;
+import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.service.CategoryAdminService;
+import ru.practicum.server.compilation.dto.NewCompilationDto;
 import ru.practicum.server.compilation.dto.CompilationDto;
-import ru.practicum.server.compilation.dto.CompilationResponseDto;
 import ru.practicum.server.compilation.service.CompilationAdminService;
-import ru.practicum.server.event.dto.EventDto;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.AdminUpdateEventRequest;
+import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.service.EventAdminService;
+import ru.practicum.server.user.dto.NewUserRequest;
 import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.service.UserAdminService;
 
@@ -27,7 +29,7 @@ public class AdminController {
     private final UserAdminService userAdminService;
     private final CompilationAdminService compilationAdminService;
     private final EventAdminService eventAdminService;
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public AdminController(CategoryAdminService categoryAdminService, UserAdminService userAdminService,
                            CompilationAdminService compilationAdminService, EventAdminService eventAdminService) {
@@ -38,8 +40,8 @@ public class AdminController {
     }
 
     @PostMapping("/categories")
-    CategoryDto createCategory(@RequestBody CategoryDto categoryDto) {
-        return categoryAdminService.addCategory(categoryDto);
+    CategoryDto createCategory(@RequestBody NewCategoryDto newCategoryDto) {
+        return categoryAdminService.addCategory(newCategoryDto);
     }
 
 
@@ -54,8 +56,8 @@ public class AdminController {
     }
 
     @PostMapping("/users")
-    UserDto createUser(@RequestBody UserDto userDto) {
-        return userAdminService.addUser(userDto);
+    UserDto createUser(@RequestBody NewUserRequest newUserRequest) {
+        return userAdminService.addUser(newUserRequest);
     }
 
     @GetMapping("/users")
@@ -81,8 +83,8 @@ public class AdminController {
     }
 
     @PostMapping("/compilations")
-    CompilationResponseDto postCompilation(@RequestBody CompilationDto compilationDto) {
-        return compilationAdminService.postCompilation(compilationDto);
+    CompilationDto postCompilation(@RequestBody NewCompilationDto newCompilationDto) {
+        return compilationAdminService.postCompilation(newCompilationDto);
     }
 
     @DeleteMapping("/compilations/{complId}")
@@ -113,13 +115,13 @@ public class AdminController {
     }
 
     @GetMapping( "/events")
-    public List<EventResponseDto> getAllEvents(@RequestParam(value = "from", defaultValue = "0") int from,
-                                               @RequestParam(value = "size", defaultValue = "10") int size,
-                                               @RequestParam(value = "states") List<String> states,
-                                               @RequestParam(value = "categories") List<Integer> categories,
-                                               @RequestParam(value = "users") List<Integer> users,
-                                               @RequestParam(value = "rangeStart") String rangeStart,
-                                               @RequestParam(value = "rangeEnd") String rangeEnd
+    public List<EventFullDto> getAllEvents(@RequestParam(value = "from", defaultValue = "0") int from,
+                                           @RequestParam(value = "size", defaultValue = "10") int size,
+                                           @RequestParam(value = "states") List<String> states,
+                                           @RequestParam(value = "categories") List<Integer> categories,
+                                           @RequestParam(value = "users") List<Integer> users,
+                                           @RequestParam(value = "rangeStart") String rangeStart,
+                                           @RequestParam(value = "rangeEnd") String rangeEnd
     ) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("eventDate").descending());
@@ -129,18 +131,18 @@ public class AdminController {
     }
 
     @PutMapping("/events/{eventId}")
-    EventResponseDto updateEvent(@PathVariable long eventId,
-                                 @RequestBody EventDto eventDto) {
-        return eventAdminService.updateEvent(eventId, eventDto);
+    EventFullDto updateEvent(@PathVariable long eventId,
+                             @RequestBody AdminUpdateEventRequest adminUpdateEventRequest) {
+        return eventAdminService.updateEvent(eventId, adminUpdateEventRequest);
     }
 
     @PatchMapping("/events/{eventId}/publish")
-    EventResponseDto publishEvent(@PathVariable long eventId) {
+    EventFullDto publishEvent(@PathVariable long eventId) {
         return eventAdminService.publishEvent(eventId);
     }
 
     @PatchMapping("/events/{eventId}/reject")
-    EventResponseDto rejectEvent(@PathVariable long eventId) {
+    EventFullDto rejectEvent(@PathVariable long eventId) {
         return eventAdminService.rejectEvent(eventId);
     }
 }

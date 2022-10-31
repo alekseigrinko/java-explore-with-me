@@ -4,6 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.dto.CategoryDto;
+import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.model.Category;
 import ru.practicum.server.exeption.ObjectNotFoundException;
 
@@ -21,9 +22,9 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
     }
 
     @Override
-    public CategoryDto addCategory(CategoryDto categoryDto) {
-        log.debug("Добавлена категория " + categoryDto.getName());
-        return toCategoryDto(categoryRepository.save(toCategory(categoryDto)));
+    public CategoryDto addCategory(NewCategoryDto newCategoryDto) {
+        log.debug("Добавлена категория " + newCategoryDto.getName());
+        return toCategoryDto(categoryRepository.save(toCategory(newCategoryDto)));
     }
 
     @Override

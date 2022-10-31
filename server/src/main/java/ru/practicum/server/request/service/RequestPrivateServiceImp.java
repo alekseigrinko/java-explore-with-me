@@ -9,7 +9,7 @@ import ru.practicum.server.exeption.BadRequestException;
 import ru.practicum.server.exeption.ObjectNotFoundException;
 import ru.practicum.server.request.RequestMapper;
 import ru.practicum.server.request.RequestRepository;
-import ru.practicum.server.request.dto.RequestDto;
+import ru.practicum.server.request.dto.ParticipationRequestDto;
 import ru.practicum.server.request.model.Request;
 import ru.practicum.server.request.model.Status;
 import ru.practicum.server.user.UserRepository;
@@ -36,10 +36,10 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     @Override
-    public RequestDto postRequest(long userId, long eventId) {
+    public ParticipationRequestDto postRequest(long userId, long eventId) {
         checkUser(eventId);
         checkEventForRequest(eventId, userId);
-        RequestDto requestDto = new RequestDto(
+        ParticipationRequestDto participationRequestDto = new ParticipationRequestDto(
                 null,
                 userId,
                 eventId,
@@ -47,11 +47,11 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
                 checkStatusRequest(eventId)
         );
         log.debug("Добавлен запрос на участие в событии ID: " + eventId);
-        return toRequestDto(requestRepository.save(toRequest(requestDto)));
+        return toRequestDto(requestRepository.save(toRequest(participationRequestDto)));
     }
 
     @Override
-    public RequestDto canceledRequest(long requestId, long userId) {
+    public ParticipationRequestDto canceledRequest(long requestId, long userId) {
         checkUser(userId);
         checkRequest(requestId);
         Request request = requestRepository.findById(requestId).get();
@@ -65,7 +65,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     @Override
-    public List<RequestDto> getAllUsersRequests(long userId) {
+    public List<ParticipationRequestDto> getAllUsersRequests(long userId) {
         checkUser(userId);
         log.debug("Предоставлен список запросов на участие в событиях пользователя ID: " + userId);
         return requestRepository.getAllByRequester(userId).stream()
@@ -74,7 +74,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     @Override
-    public List<RequestDto> getRequestsForEventByUser(long userId, long eventId) {
+    public List<ParticipationRequestDto> getRequestsForEventByUser(long userId, long eventId) {
         checkUser(userId);
         checkRequest(eventId);
         log.debug("Предоставлен список запросов на участие в событии ID: " + eventId + " пользователя ID: " + userId);
@@ -84,7 +84,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     @Override
-    public RequestDto confirmRequest(long userId, long eventId, long requestId) {
+    public ParticipationRequestDto confirmRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
         checkRequest(requestId);
         Request request = requestRepository.findById(requestId).get();
@@ -97,7 +97,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     @Override
-    public RequestDto rejectRequest(long userId, long eventId, long requestId) {
+    public ParticipationRequestDto rejectRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
         checkRequest(requestId);
         Request request = requestRepository.findById(requestId).get();
@@ -130,7 +130,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
             log.warn("Инициатор события не может подавать запрос на участие в нем!");
             throw new BadRequestException("Инициатор события не может подавать запрос на участие в нем!");
         }
-        if (eventRepository.findById(eventId).get().getState() != State.PUBLISHER) {
+        if (eventRepository.findById(eventId).get().getState() != State.PUBLISHED) {
             log.warn("Запрос не может быть подан на не опубликованное событие!");
             throw new BadRequestException("Запрос не может быть подан на не опубликованное событие!");
         }

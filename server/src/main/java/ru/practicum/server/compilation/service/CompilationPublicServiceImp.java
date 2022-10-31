@@ -6,13 +6,12 @@ import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.compilation.CompilationRepository;
 import ru.practicum.server.compilation.EventCompilationRepository;
-import ru.practicum.server.compilation.dto.CompilationResponseDto;
+import ru.practicum.server.compilation.dto.CompilationDto;
 import ru.practicum.server.compilation.model.Compilation;
 import ru.practicum.server.compilation.model.EventCompilation;
 import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
-import ru.practicum.server.event.LocationRepository;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.exeption.ObjectNotFoundException;
 import ru.practicum.server.request.RequestRepository;
@@ -22,7 +21,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static ru.practicum.server.compilation.CompilationMapper.toCompilationResponseDto;
-import static ru.practicum.server.event.EventMapper.toEventResponseDto;
+import static ru.practicum.server.event.EventMapper.toEventShortDto;
 
 
 @Service
@@ -34,39 +33,38 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     private final EventCompilationRepository eventCompilationRepository;
     private final CategoryRepository categoryRepository;
     private final UserRepository userRepository;
-    private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
     private final EventClient eventClient;
 
     public CompilationPublicServiceImp(EventRepository eventRepository, CompilationRepository compilationRepository,
-                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository, UserRepository userRepository, LocationRepository locationRepository, RequestRepository requestRepository, EventClient eventClient) {
+                                       EventCompilationRepository eventCompilationRepository,
+                                       CategoryRepository categoryRepository, UserRepository userRepository,
+                                       RequestRepository requestRepository, EventClient eventClient) {
         this.eventRepository = eventRepository;
         this.compilationRepository = compilationRepository;
         this.eventCompilationRepository = eventCompilationRepository;
         this.categoryRepository = categoryRepository;
         this.userRepository = userRepository;
-        this.locationRepository = locationRepository;
         this.requestRepository = requestRepository;
         this.eventClient = eventClient;
     }
 
     @Override
-    public CompilationResponseDto getCompilation(long compilationId) {
+    public CompilationDto getCompilation(long compilationId) {
         checkCompilation(compilationId);
         Compilation compilation = compilationRepository.findById(compilationId).get();
         List<EventCompilation> eventCompilationList = eventCompilationRepository.findAllByCompilationId(compilation.getId());
-        List<EventResponseDto> events = new ArrayList<>();
+        List<EventShortDto> events = new ArrayList<>();
         for (EventCompilation eventCompilation : eventCompilationList) {
             eventCompilationRepository.save(new EventCompilation(
                     null,
                     eventCompilation.getEventId(),
                     compilation.getId()));
             Event event = eventRepository.findById(eventCompilation.getEventId()).get();
-            events.add(toEventResponseDto(
+            events.add(toEventShortDto(
                     event,
                     userRepository.findById(event.getInitiatorId()).get(),
                     categoryRepository.findById(event.getCategoryId()).get(),
-                    locationRepository.findById(event.getLocationId()).get(),
                     eventClient.getViews(event.getId()),
                     requestRepository.getEventParticipantLimit(event.getId())
             ));
@@ -76,31 +74,30 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     }
 
     @Override
-    public List<CompilationResponseDto> getAllCompilations(PageRequest pageRequest) {
+    public List<CompilationDto> getAllCompilations(PageRequest pageRequest) {
         List<Compilation> compilations = compilationRepository.findAll(pageRequest).toList();
-        List<CompilationResponseDto> compilationResponseDtoList = new ArrayList<>();
+        List<CompilationDto> compilationDtoList = new ArrayList<>();
         for (Compilation compilation : compilations) {
             List<EventCompilation> eventCompilationList = eventCompilationRepository.findAllByCompilationId(compilation.getId());
-            List<EventResponseDto> events = new ArrayList<>();
+            List<EventShortDto> events = new ArrayList<>();
             for (EventCompilation eventCompilation : eventCompilationList) {
                 eventCompilationRepository.save(new EventCompilation(
                         null,
                         eventCompilation.getEventId(),
                         compilation.getId()));
                 Event event = eventRepository.findById(eventCompilation.getEventId()).get();
-                events.add(toEventResponseDto(
+                events.add(toEventShortDto(
                         event,
                         userRepository.findById(event.getInitiatorId()).get(),
                         categoryRepository.findById(event.getCategoryId()).get(),
-                        locationRepository.findById(event.getLocationId()).get(),
                         eventClient.getViews(event.getId()),
                         requestRepository.getEventParticipantLimit(event.getId()
                 )));
             }
-            compilationResponseDtoList.add(toCompilationResponseDto(compilation, events));
+            compilationDtoList.add(toCompilationResponseDto(compilation, events));
         }
         log.debug("Предоставлены подборки по запросу");
-        return compilationResponseDtoList;
+        return compilationDtoList;
     }
 
     public void checkEvent(long eventId) {

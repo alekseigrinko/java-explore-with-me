@@ -9,7 +9,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class HitResponseDto {
+public class ViewStats {
     private String app;
     private String uri;
     private long hits;

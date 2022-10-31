@@ -1,5 +1,6 @@
 package ru.practicum.server.user;
 
+import ru.practicum.server.user.dto.NewUserRequest;
 import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.model.User;
 
@@ -12,11 +13,11 @@ public class UserMapper {
         );
     }
 
-    public static User toUser(UserDto userDto) {
+    public static User toUser(NewUserRequest newUserRequest) {
         return new User(
-                userDto.getId(),
-                userDto.getName(),
-                userDto.getEmail()
+                null,
+                newUserRequest.getName(),
+                newUserRequest.getEmail()
         );
     }
 }

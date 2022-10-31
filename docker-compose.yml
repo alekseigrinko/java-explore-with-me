@@ -1,45 +1,46 @@
-version: '3.8'
-services:
-  statistic:
-    build: ewm-statistic-service/
-    container_name: ewm-statistic-service
-    ports:
-      - "9090:9090"
-    depends_on:
-      - db2
-    environment:
-      - spring.datasource.url=jdbc:postgresql://db:5433/explore-statistic
-      - spring.datasource.username=explore
-      - spring.datasource.password=explore
+version: '3.1'
 
-  server:
-    build: ewm-main-service/
-    container_name: ewm-main-service
+services:
+
+  ewm-service:
+    build: server/
     ports:
       - "8080:8080"
     depends_on:
-      - db
+      - server-db
+      - stats-server
     environment:
-      - spring.datasource.url=jdbc:postgresql://db:5432/explore
-      - spring.datasource.username=explore
-      - spring.datasource.password=explore
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql_ewm:5432/explore-with-me
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
 
-  db:
-    image: postgres
-    container_name: explore
+  stats-server:
+    build: statistic/
+    ports:
+      - "9090:9090"
+    depends_on:
+      - stats-db
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgresql_stats:5432/explore-with-me-stats
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+
+  server-db:
+    image: postgres:14-alpine
+    container_name: postgresql_ewm
     ports:
       - "6541:5432"
     environment:
-      - POSTGRES_DB=explore
-      - POSTGRES_USER=explore
-      - POSTGRES_PASSWORD=explore
+      - POSTGRES_DB=explore-with-me
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
 
-  db2:
-    image: postgres
-    container_name: explore-statistic
+  stats-db:
+    image: postgres:14-alpine
+    container_name: postgresql_stats
     ports:
-      - "6542:5433"
+      - "6542:5432"
     environment:
-      - POSTGRES_DB=explore-statistic
-      - POSTGRES_USER=explore
-      - POSTGRES_PASSWORD=explore
+      - POSTGRES_DB=explore-with-me-stats
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres

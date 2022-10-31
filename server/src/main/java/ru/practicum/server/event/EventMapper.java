@@ -1,83 +1,92 @@
 package ru.practicum.server.event;
 
+import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.model.Category;
-import ru.practicum.server.event.dto.EventDto;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.EventShortDto;
+import ru.practicum.server.event.dto.NewEventDto;
+import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.Location;
+import ru.practicum.server.event.model.State;
+import ru.practicum.server.user.dto.UserShortDto;
 import ru.practicum.server.user.model.User;
 
-public class EventMapper {
-    public static EventDto toEventDto(Event event, Location location) {
-        return new EventDto(
-                event.getId(),
-                event.getTitle(),
-                event.getDescription(),
-                event.getAnnotation(),
-                event.getState(),
-                event.getInitiatorId(),
-                event.getCategoryId(),
-                event.isPaid(),
-                event.isRequestModeration(),
-                event.getCreatedOn(),
-                event.getPublishedOn(),
-                event.getEventDate(),
-                new EventDto.LocationDto(
-                        location.getLat(),
-                        location.getLon()
-                ),
-                event.getParticipantLimit()
-        );
-    }
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 
-    public static Event toEvent(EventDto eventDto, long locationId) {
+public class EventMapper {
+
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
+    public static Event toEvent(NewEventDto newEventDto, long userId) {
         return new Event(
-                eventDto.getId(),
-                eventDto.getTitle(),
-                eventDto.getDescription(),
-                eventDto.getAnnotation(),
-                eventDto.getState(),
-                eventDto.getInitiatorId(),
-                eventDto.getCategoryId(),
-                eventDto.isPaid(),
-                eventDto.isRequestModeration(),
-                eventDto.getCreatedOn(),
-                eventDto.getPublishedOn(),
-                eventDto.getEventDate(),
-                locationId,
-                eventDto.getParticipantLimit(),
+                null,
+                newEventDto.getTitle(),
+                newEventDto.getDescription(),
+                newEventDto.getAnnotation(),
+                State.PENDING,
+                userId,
+                newEventDto.getCategory(),
+                newEventDto.isPaid(),
+                newEventDto.isRequestModeration(),
+                LocalDateTime.now(),
+                null,
+                LocalDateTime.parse(newEventDto.getEventDate(), formatter),
+                newEventDto.getLocation().getLat(),
+                newEventDto.getLocation().getLon(),
+                newEventDto.getParticipantLimit(),
                 false
         );
     }
 
-    public static EventResponseDto toEventResponseDto(Event event, User user, Category category, Location location,
-                                                      long views, long confirmedRequests) {
-        return new EventResponseDto(
-                event.getId(),
-                event.getTitle(),
-                event.getDescription(),
+    public static EventFullDto toEventFullDto(Event event, User user, Category category,
+                                              long views, long confirmedRequests) {
+        return new EventFullDto(
                 event.getAnnotation(),
-                event.getState(),
-                new EventResponseDto.UserResponseDto(
-                        user.getId(),
-                        user.getName()
-                ),
-                new EventResponseDto.CategoryResponseDto(
+                new CategoryDto(
                         category.getId(),
                         category.getName()
                 ),
-                event.isPaid(),
-                event.isRequestModeration(),
-                event.getCreatedOn(),
-                event.getPublishedOn(),
-                event.getEventDate(),
-                new EventResponseDto.LocationResponseDto(
-                        location.getLat(),
-                        location.getLon()
+                confirmedRequests,
+                event.getCreatedOn().toString(),
+                event.getDescription(),
+                event.getEventDate().toString(),
+                event.getId(),
+                new UserShortDto(
+                        user.getId(),
+                        user.getName()
                 ),
+                new Location(
+                        event.getLatLocation(),
+                        event.getLonLocation()
+                ),
+                event.isPaid(),
                 event.getParticipantLimit(),
-                views,
-                confirmedRequests
+                event.getPublishedOn().toString(),
+                event.isRequestModeration(),
+                event.getState().toString(),
+                event.getTitle(),
+                views
+        );
+    }
+
+    public static EventShortDto toEventShortDto(Event event, User user, Category category,
+                                               long views, long confirmedRequests) {
+        return new EventShortDto(
+                event.getAnnotation(),
+                new CategoryDto(
+                        category.getId(),
+                        category.getName()
+                ),
+                confirmedRequests,
+                event.getEventDate().toString(),
+                event.getId(),
+                new UserShortDto(
+                        user.getId(),
+                        user.getName()
+                ),
+                event.getTitle(),
+                views
         );
     }
 }

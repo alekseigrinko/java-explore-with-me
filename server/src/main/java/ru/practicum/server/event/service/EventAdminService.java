@@ -1,20 +1,21 @@
 package ru.practicum.server.event.service;
 
 import org.springframework.data.domain.PageRequest;
-import ru.practicum.server.event.dto.EventDto;
-import ru.practicum.server.event.dto.EventResponseDto;
+import ru.practicum.server.event.dto.AdminUpdateEventRequest;
+import ru.practicum.server.event.dto.NewEventDto;
+import ru.practicum.server.event.dto.EventFullDto;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
 public interface EventAdminService {
 
-    List<EventResponseDto> getAllEvents(List<String> states,List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
-                                       LocalDateTime rangeEnd, PageRequest pageRequest);
+    List<EventFullDto> getAllEvents(List<String> states, List<Integer> categories, List<Integer> users, LocalDateTime rangeStart,
+                                    LocalDateTime rangeEnd, PageRequest pageRequest);
 
-    EventResponseDto updateEvent(long eventId, EventDto eventDto);
+    EventFullDto updateEvent(long eventId, AdminUpdateEventRequest adminUpdateEventRequest);
 
-    EventResponseDto publishEvent(long eventId);
+    EventFullDto publishEvent(long eventId);
 
-    EventResponseDto rejectEvent(long eventId);
+    EventFullDto rejectEvent(long eventId);
 }

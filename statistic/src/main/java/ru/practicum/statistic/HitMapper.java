@@ -1,18 +1,22 @@
 package ru.practicum.statistic;
 
-
 import ru.practicum.statistic.dto.HitDto;
-import ru.practicum.statistic.dto.HitResponseDto;
 import ru.practicum.statistic.model.Hit;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class HitMapper {
+
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
     public static HitDto toHitDto(Hit hit) {
         return new HitDto(
                 hit.getId(),
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
-                hit.getTimestamp()
+                hit.getTimestamp().toString()
         );
     }
 
@@ -22,7 +26,7 @@ public class HitMapper {
                 hitDto.getApp(),
                 hitDto.getUri(),
                 hitDto.getIp(),
-                hitDto.getTimestamp()
+                LocalDateTime.parse(hitDto.getTimestamp(), formatter)
         );
     }
 }

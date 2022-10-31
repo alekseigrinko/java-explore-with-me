@@ -1,11 +1,11 @@
 package ru.practicum.server.compilation.service;
 
+import ru.practicum.server.compilation.dto.NewCompilationDto;
 import ru.practicum.server.compilation.dto.CompilationDto;
-import ru.practicum.server.compilation.dto.CompilationResponseDto;
 
 public interface CompilationAdminService {
 
-    CompilationResponseDto postCompilation(CompilationDto compilationDto);
+    CompilationDto postCompilation(NewCompilationDto newCompilationDto);
 
     void putEventToCompilation(long compilationId, long eventId);
 

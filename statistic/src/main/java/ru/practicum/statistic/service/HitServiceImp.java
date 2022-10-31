@@ -4,7 +4,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.statistic.HitRepository;
 import ru.practicum.statistic.dto.HitDto;
-import ru.practicum.statistic.dto.HitResponseDto;
+import ru.practicum.statistic.dto.ViewStats;
 
 import java.time.LocalDateTime;
 import java.util.ArrayList;
@@ -26,15 +26,16 @@ public class HitServiceImp implements HitService {
 
     @Override
     public HitDto postHit(HitDto hitDto) {
+        log.debug("Запись сохранена в лог: " + hitDto.getUri());
         return toHitDto(hitRepository.save(toHit(hitDto)));
     }
 
     @Override
-    public List<HitResponseDto> getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
-        List<HitResponseDto> hitResponseDtoList = new ArrayList<>();
+    public List<ViewStats> getHits(LocalDateTime start, LocalDateTime end, List<String> uris, boolean unique) {
+        List<ViewStats> viewStatsList = new ArrayList<>();
         if (unique) {
             for (String uri : uris) {
-                hitResponseDtoList.add(new HitResponseDto(
+                viewStatsList.add(new ViewStats(
                         null,
                         uri,
                         hitRepository.getUniqueHits(start, end, uri)
@@ -42,14 +43,15 @@ public class HitServiceImp implements HitService {
             }
         } else {
             for (String uri : uris) {
-                hitResponseDtoList.add(new HitResponseDto(
+                viewStatsList.add(new ViewStats(
                         null,
                         uri,
                         hitRepository.getHits(start, end, uri)
                 ));
             }
         }
-        return hitResponseDtoList;
+        log.debug("Предоставлены журнал данных по запросу");
+        return viewStatsList;
     }
 
     @Override

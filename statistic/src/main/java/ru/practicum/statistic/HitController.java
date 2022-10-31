@@ -2,10 +2,11 @@ package ru.practicum.statistic;
 
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.statistic.dto.HitDto;
-import ru.practicum.statistic.dto.HitResponseDto;
+import ru.practicum.statistic.dto.ViewStats;
 import ru.practicum.statistic.service.HitService;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 
 @RestController
@@ -13,6 +14,8 @@ import java.util.List;
 public class HitController {
 
     private final HitService hitService;
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     public HitController(HitService hitService) {
         this.hitService = hitService;
@@ -24,12 +27,13 @@ public class HitController {
     }
 
     @GetMapping(path = "stats")
-    public List<HitResponseDto> getHits(@RequestParam(value = "start") LocalDateTime start,
-                                        @RequestParam(value = "end") LocalDateTime end,
-                                        @RequestParam(value = "uris") List<String> uris,
-                                        @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
-
-        return hitService.getHits(start, end, uris, unique);
+    public List<ViewStats> getHits(@RequestParam(value = "start") String start,
+                                   @RequestParam(value = "end") String end,
+                                   @RequestParam(value = "uris") List<String> uris,
+                                   @RequestParam(value = "unique", defaultValue = "false") boolean unique) {
+        LocalDateTime startTime = LocalDateTime.parse(start, formatter);
+        LocalDateTime endTime = LocalDateTime.parse(end, formatter);
+        return hitService.getHits(startTime, endTime, uris, unique);
     }
 
     @GetMapping(path = "views")

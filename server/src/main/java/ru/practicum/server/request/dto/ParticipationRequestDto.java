@@ -12,10 +12,10 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class RequestDto {
+public class ParticipationRequestDto {
+    private String created;
+    private long event;
     private Long id;
     private long requester;
-    private long event;
-    private LocalDateTime created;
-    private Status status;
+    private String status;
 }

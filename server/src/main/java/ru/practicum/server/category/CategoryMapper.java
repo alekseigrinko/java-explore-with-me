@@ -1,6 +1,7 @@
 package ru.practicum.server.category;
 
 import ru.practicum.server.category.dto.CategoryDto;
+import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.model.Category;
 
 public class CategoryMapper {
@@ -11,10 +12,10 @@ public class CategoryMapper {
         );
     }
 
-    public static Category toCategory(CategoryDto categoryDto) {
+    public static Category toCategory(NewCategoryDto newCategoryDto) {
         return new Category(
-                categoryDto.getId(),
-                categoryDto.getName()
+                null,
+                newCategoryDto.getName()
         );
     }
 }
