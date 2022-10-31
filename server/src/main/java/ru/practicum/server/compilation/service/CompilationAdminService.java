@@ -7,13 +7,13 @@ public interface CompilationAdminService {
 
     CompilationDto postCompilation(NewCompilationDto newCompilationDto);
 
-    void putEventToCompilation(long compilationId, long eventId);
+    CompilationDto putEventToCompilation(long compilationId, long eventId);
 
-    void deleteEventFromCompilation(long compilationId, long eventId);
+    CompilationDto deleteEventFromCompilation(long compilationId, long eventId);
 
-    void deleteCompilation(long compilationId);
+    CompilationDto deleteCompilation(long compilationId);
 
-    void unpinnedCompilation(long compilationId);
+    CompilationDto unpinnedCompilation(long compilationId);
 
-    void pinnedCompilation(long compilationId);
+    CompilationDto pinnedCompilation(long compilationId);
 }

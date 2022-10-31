@@ -101,10 +101,6 @@ public class EventPrivateServiceImp implements EventPrivateService {
             log.warn("Пользователь не имеет прав для редактирования событий");
             throw new BadRequestException("Пользователь не имеет прав для редактирования событий");
         }
-        if (eventRepository.findById(updateEventRequest.getEventId()).get().isRequestModeration()) {
-            log.warn("Событие уже подтверждено и не подлежит изменению");
-            throw new BadRequestException("Событие уже подтверждено и не подлежит изменению");
-        }
         if (updateEventRequest.getTitle() != null) {
             event.setTitle(updateEventRequest.getTitle());
         }
@@ -167,7 +163,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
     }
 
     public void checkCreationTime(String time) {
-        if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().minusHours(2))) {
+        if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
             throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
         }

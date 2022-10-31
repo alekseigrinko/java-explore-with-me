@@ -90,31 +90,31 @@ public class AdminController {
         return compilationAdminService.postCompilation(newCompilationDto);
     }
 
-    @DeleteMapping("/compilations/{complId}")
-    void deleteCompilation(@PathVariable long complId) {
-        compilationAdminService.deleteCompilation(complId);
+    @DeleteMapping("/compilations/{compId}")
+    CompilationDto deleteCompilation(@PathVariable long compId) {
+        return compilationAdminService.deleteCompilation(compId);
     }
 
-    @DeleteMapping("/compilations/{complId}/events/{eventId}")
-    void deleteEventFromCompilation(@PathVariable long complId,
+    @DeleteMapping("/compilations/{compId}/events/{eventId}")
+    CompilationDto deleteEventFromCompilation(@PathVariable long compId,
                                     @PathVariable long eventId) {
-        compilationAdminService.deleteEventFromCompilation(complId, eventId);
+        return compilationAdminService.deleteEventFromCompilation(compId, eventId);
     }
 
-    @PatchMapping("/compilations/{complId}/events/{eventId}")
-    void putEventFromCompilation(@PathVariable long complId,
+    @PatchMapping("/compilations/{compId}/events/{eventId}")
+    CompilationDto putEventFromCompilation(@PathVariable long compId,
                                  @PathVariable long eventId) {
-        compilationAdminService.putEventToCompilation(complId, eventId);
+        return compilationAdminService.putEventToCompilation(compId, eventId);
     }
 
-    @DeleteMapping("/compilations/{complId}/pin")
-    void unpinnedCompilation(@PathVariable long complId) {
-        compilationAdminService.unpinnedCompilation(complId);
+    @DeleteMapping("/compilations/{compId}/pin")
+    CompilationDto unpinnedCompilation(@PathVariable long compId) {
+        return compilationAdminService.unpinnedCompilation(compId);
     }
 
-    @PatchMapping("/compilations/{complId}/pin")
-    void pinnedCompilation(@PathVariable long complId) {
-        compilationAdminService.pinnedCompilation(complId);
+    @PatchMapping("/compilations/{compId}/pin")
+    CompilationDto pinnedCompilation(@PathVariable long compId) {
+        return compilationAdminService.pinnedCompilation(compId);
     }
 
     @GetMapping( "/events")

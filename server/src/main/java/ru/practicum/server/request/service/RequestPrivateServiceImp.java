@@ -15,11 +15,13 @@ import ru.practicum.server.request.model.Status;
 import ru.practicum.server.user.UserRepository;
 
 import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
 import static ru.practicum.server.request.RequestMapper.toRequest;
-import static ru.practicum.server.request.RequestMapper.toRequestDto;
+import static ru.practicum.server.request.RequestMapper.toParticipationRequestDto;
 
 @Service
 @Slf4j
@@ -28,6 +30,8 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
     private final EventRepository eventRepository;
+
+    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public RequestPrivateServiceImp(UserRepository userRepository, RequestRepository requestRepository, EventRepository eventRepository) {
         this.userRepository = userRepository;
@@ -40,14 +44,14 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         checkUser(eventId);
         checkEventForRequest(eventId, userId);
         ParticipationRequestDto participationRequestDto = new ParticipationRequestDto(
-                LocalDateTime.now().toString(),
+                LocalDateTime.now().format(formatter),
                 eventId,
                 null,
                 userId,
                 checkStatusRequest(eventId).toString()
         );
         log.debug("Добавлен запрос на участие в событии ID: " + eventId);
-        return toRequestDto(requestRepository.save(toRequest(participationRequestDto)));
+        return toParticipationRequestDto(requestRepository.save(toRequest(participationRequestDto)));
     }
 
     @Override
@@ -61,7 +65,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         }
         request.setStatus(Status.CANCELED);
         log.debug("Отменен запрос ID: " + requestId);
-        return toRequestDto(requestRepository.save(request));
+        return toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
@@ -69,36 +73,42 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         checkUser(userId);
         log.debug("Предоставлен список запросов на участие в событиях пользователя ID: " + userId);
         return requestRepository.getAllByRequester(userId).stream()
-                .map(RequestMapper::toRequestDto)
+                .map(RequestMapper::toParticipationRequestDto)
                 .collect(Collectors.toList());
     }
 
     @Override
     public List<ParticipationRequestDto> getRequestsForEventByUser(long userId, long eventId) {
         checkUser(userId);
-        checkRequest(eventId);
+        checkEvent(eventId);
+        List<Request> requests = requestRepository.getAllRequestsByUserForEvent(userId, eventId);
+        List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
+        for (Request request : requests) {
+            participationRequestDtoList.add(toParticipationRequestDto(request));
+        }
         log.debug("Предоставлен список запросов на участие в событии ID: " + eventId + " пользователя ID: " + userId);
-        return requestRepository.getAllByRequesterAndAndEvent(userId, eventId).stream()
-                .map(RequestMapper::toRequestDto)
-                .collect(Collectors.toList());
+        return /*requestRepository.getAllByRequesterAndEvent(userId, eventId).stream()
+                .map(RequestMapper::toParticipationRequestDto)
+                .collect(Collectors.toList());*/ participationRequestDtoList;
     }
 
     @Override
     public ParticipationRequestDto confirmRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
+        checkEvent(eventId);
         checkRequest(requestId);
         Request request = requestRepository.findById(requestId).get();
-        checkRequest(request.getEvent());
         request.setStatus(Status.CONFIRMED);
         log.debug("Подтвержден запрос ID: " + requestId);
         Event event = eventRepository.findById(eventId).get();
         event.setLimit(true);
-        return toRequestDto(requestRepository.save(request));
+        return toParticipationRequestDto(requestRepository.save(request));
     }
 
     @Override
     public ParticipationRequestDto rejectRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
+        checkEvent(eventId);
         checkRequest(requestId);
         Request request = requestRepository.findById(requestId).get();
         if (request.getStatus() == Status.CONFIRMED) {
@@ -107,7 +117,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         }
         request.setStatus(Status.REJECTED);
         log.debug("Отклонен запрос ID: " + requestId);
-        return toRequestDto(requestRepository.save(request));
+        return toParticipationRequestDto(requestRepository.save(request));
     }
 
 
@@ -122,6 +132,13 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         if (!requestRepository.existsById(requestId)) {
             log.warn("Запрос ID: " + requestId + ", не найден!");
             throw new ObjectNotFoundException("Запрос ID: " + requestId + ", не найден!");
+        }
+    }
+
+    public void checkEvent(long eventId) {
+        if (!eventRepository.existsById(eventId)) {
+            log.warn("Событие ID: " + eventId + ", не найдено!");
+            throw new ObjectNotFoundException("Событие ID: " + eventId + ", не найдено!");
         }
     }
 

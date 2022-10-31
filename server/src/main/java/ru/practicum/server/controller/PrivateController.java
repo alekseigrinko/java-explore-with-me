@@ -47,7 +47,7 @@ public class PrivateController {
     @PostMapping("/{userId}/events")
     EventFullDto postEvent(@PathVariable long userId,
                            @RequestBody NewEventDto newEventDto) {
-        log.trace("Получен запрос на добавления события");
+        log.debug("Получен запрос на добавления события");
         return eventPrivateService.addEvent(userId, newEventDto);
     }
 

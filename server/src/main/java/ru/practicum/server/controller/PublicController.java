@@ -64,7 +64,7 @@ public class PublicController {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size);
         eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
-                request.getRemoteAddr(), LocalDateTime.now().toString()));
+                request.getRemoteAddr(), LocalDateTime.now().format(formatter)));
         LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
         LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
         return eventPublicService.getAllEvents(text, categories, paid, start, end, onlyAvailable, sort, pageRequest);
@@ -85,7 +85,7 @@ public class PublicController {
     @GetMapping(path = "compilations")
     List<CompilationDto> getAllCompilations(@RequestParam(value = "from", defaultValue = "0") int from,
                                             @RequestParam(value = "size", defaultValue = "10") int size,
-                                            @RequestParam(value = "pinned") boolean pinned
+                                            @RequestParam(value = "pinned", defaultValue = "false") boolean pinned
     ) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("title").ascending());

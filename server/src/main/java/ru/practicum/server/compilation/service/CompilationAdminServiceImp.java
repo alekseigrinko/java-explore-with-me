@@ -14,15 +14,19 @@ import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.event.model.Event;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.StatusException;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
 import static ru.practicum.server.compilation.CompilationMapper.toCompilation;
-import static ru.practicum.server.compilation.CompilationMapper.toCompilationResponseDto;
+import static ru.practicum.server.compilation.CompilationMapper.toCompilationDto;
 import static ru.practicum.server.event.EventMapper.toEventShortDto;
 
 
@@ -37,6 +41,8 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
     private final EventClient eventClient;
+    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+
 
     public CompilationAdminServiceImp(EventRepository eventRepository, CompilationRepository compilationRepository,
                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository,
@@ -70,53 +76,113 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
             ));
         }
         log.debug("Сохранена подборка: " + compilation.getTitle());
-        return toCompilationResponseDto(compilation, events);
+        return toCompilationDto(compilation, events);
     }
 
     @Override
-    public void putEventToCompilation(long compilationId, long eventId) {
+    public CompilationDto putEventToCompilation(long compilationId, long eventId) {
         checkCompilation(compilationId);
         checkEvent(eventId);
         eventCompilationRepository.save(new EventCompilation(
                 null,
                 eventId,
                 compilationId));
+        List<EventShortDto> events = new ArrayList<>();
+        for (EventCompilation eventCompilation: eventCompilationRepository.findAllByCompilationId(compilationId)) {
+            Event event = eventRepository.findById(eventCompilation.getEventId()).get();
+            events.add(toEventShortDto(
+                    event,
+                    userRepository.findById(event.getInitiatorId()).get(),
+                    categoryRepository.findById(event.getCategoryId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(eventCompilation.getEventId())
+            ));
+        }
         log.debug("Событие добавлено в подборку");
+        return toCompilationDto(compilationRepository.findById(compilationId).get(), events);
     }
 
     @Override
-    public void deleteEventFromCompilation(long compilationId, long eventId) {
+    public CompilationDto deleteEventFromCompilation(long compilationId, long eventId) {
         checkCompilation(compilationId);
         checkEvent(eventId);
         eventCompilationRepository.deleteByCompilationIdAndEventId(compilationId, eventId);
+        List<EventShortDto> events = new ArrayList<>();
+        for (EventCompilation eventCompilation: eventCompilationRepository.findAllByCompilationId(compilationId)) {
+            Event event = eventRepository.findById(eventCompilation.getEventId()).get();
+            events.add(toEventShortDto(
+                    event,
+                    userRepository.findById(event.getInitiatorId()).get(),
+                    categoryRepository.findById(event.getCategoryId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(eventCompilation.getEventId())
+            ));
+        }
         log.debug("Событие удалено из подборки");
+        return toCompilationDto(compilationRepository.findById(compilationId).get(), events);
     }
 
     @Override
-    public void deleteCompilation(long compilationId) {
+    public CompilationDto deleteCompilation(long compilationId) {
         checkCompilation(compilationId);
-        Compilation compilation = compilationRepository.findById(compilationId).get();
+        List<EventShortDto> events = new ArrayList<>();
+        for (EventCompilation eventCompilation: eventCompilationRepository.findAllByCompilationId(compilationId)) {
+            Event event = eventRepository.findById(eventCompilation.getEventId()).get();
+            events.add(toEventShortDto(
+                    event,
+                    userRepository.findById(event.getInitiatorId()).get(),
+                    categoryRepository.findById(event.getCategoryId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(eventCompilation.getEventId())
+            ));
+        }
+        CompilationDto compilationDto = toCompilationDto(compilationRepository.findById(compilationId).get(), events);
         eventCompilationRepository.deleteAllByCompilationId(compilationId);
-        compilationRepository.deleteById(compilationId);
-        log.debug("Удалена подборка: " + compilation.getTitle());
+        compilationRepository.deleteCompilation(compilationId);
+        log.debug("Удалена подборка: " + compilationDto.getTitle());
+        return compilationDto;
     }
 
     @Override
-    public void unpinnedCompilation(long compilationId) {
+    public CompilationDto unpinnedCompilation(long compilationId) {
         checkCompilation(compilationId);
         Compilation compilation = compilationRepository.findById(compilationId).get();
         compilation.setPinned(false);
         compilationRepository.save(compilation);
         log.debug("Откреплена от главной страницы подборка: " + compilation.getTitle());
+        List<EventShortDto> events = new ArrayList<>();
+        for (EventCompilation eventCompilation: eventCompilationRepository.findAllByCompilationId(compilationId)) {
+            Event event = eventRepository.findById(eventCompilation.getEventId()).get();
+            events.add(toEventShortDto(
+                    event,
+                    userRepository.findById(event.getInitiatorId()).get(),
+                    categoryRepository.findById(event.getCategoryId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(eventCompilation.getEventId())
+            ));
+        }
+        return toCompilationDto(compilationRepository.findById(compilationId).get(), events);
     }
 
     @Override
-    public void pinnedCompilation(long compilationId) {
+    public CompilationDto pinnedCompilation(long compilationId) {
         checkCompilation(compilationId);
         Compilation compilation = compilationRepository.findById(compilationId).get();
         compilation.setPinned(true);
         compilationRepository.save(compilation);
         log.debug("Закреплена на главной страницы подборка: " + compilation.getTitle());
+        List<EventShortDto> events = new ArrayList<>();
+        for (EventCompilation eventCompilation: eventCompilationRepository.findAllByCompilationId(compilationId)) {
+            Event event = eventRepository.findById(eventCompilation.getEventId()).get();
+            events.add(toEventShortDto(
+                    event,
+                    userRepository.findById(event.getInitiatorId()).get(),
+                    categoryRepository.findById(event.getCategoryId()).get(),
+                    eventClient.getViews(event.getId()),
+                    requestRepository.getEventParticipantLimit(eventCompilation.getEventId())
+            ));
+        }
+        return toCompilationDto(compilationRepository.findById(compilationId).get(), events);
     }
 
     public void checkEvent(long eventId) {
@@ -127,9 +193,29 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     }
 
     public void checkCompilation(long compilationId) {
+        /*try {
+            if (!compilationRepository.existsById(compilationId)) {
+                log.warn("Подборки ID: " + compilationId + ", не найдено!");
+                throw new ObjectNotFoundException("Подборки ID: " + compilationId + ", не найдено!");
+            }
+        } catch (ObjectNotFoundException e) {
+
+           throw new ApiError(
+                   e.getStackTrace(),
+                   e.getLocalizedMessage(),
+                   e.getMessage(),
+                   StatusException.FORBIDDEN.toString(),
+                   LocalDateTime.now().format(formatter)
+
+           );
+        }*/
         if (!compilationRepository.existsById(compilationId)) {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
             throw new ObjectNotFoundException("Подборки ID: " + compilationId + ", не найдено!");
         }
     }
+
+        public void checkEventInCompilation(long compilationId) {
+            
+        }
 }

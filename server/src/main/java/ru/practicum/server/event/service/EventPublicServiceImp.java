@@ -50,8 +50,13 @@ public class EventPublicServiceImp implements EventPublicService {
                                            LocalDateTime rangeEnd, boolean onlyAvailable, SortEvent sort, PageRequest pageRequest) {
         List<Event> events = new ArrayList<>();
         for (Integer categoryId : categories) {
-            events.addAll(eventRepository.getPublicAllEvents(text, categoryId.longValue(), paid, rangeStart,
-                    rangeEnd, onlyAvailable, pageRequest).toList());
+            if (rangeStart != null) {
+                events.addAll(eventRepository.getPublicAllEvents(text, categoryId.longValue(), paid, rangeStart,
+                        rangeEnd, onlyAvailable, pageRequest).toList());
+            } else {
+                events.addAll(eventRepository.getPublicAllEventsWithoutRange(text, categoryId.longValue(), paid,
+                        LocalDateTime.now(), onlyAvailable, pageRequest).toList());
+            }
         }
         List<EventFullDto> eventFullDtos = new ArrayList<>();
         for (Event event : events) {

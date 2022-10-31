@@ -72,7 +72,7 @@ public class UserAdminServiceImp implements UserAdminService {
     @Override
     public UserDto deleteUser(long userId) {
         UserDto userDto = toUserDto(userRepository.findById(userId).get());
-        userRepository.deleteById(userId);
+        userRepository.deleteUser(userId);
         log.debug("Удален пользователь ID: " + userId);
         return userDto;
     }

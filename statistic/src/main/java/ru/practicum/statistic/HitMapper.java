@@ -16,7 +16,7 @@ public class HitMapper {
                 hit.getApp(),
                 hit.getUri(),
                 hit.getIp(),
-                hit.getTimestamp().toString()
+                hit.getTimestamp().format(formatter)
         );
     }
 

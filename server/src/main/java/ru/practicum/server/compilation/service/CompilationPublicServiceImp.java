@@ -20,7 +20,7 @@ import ru.practicum.server.user.UserRepository;
 import java.util.ArrayList;
 import java.util.List;
 
-import static ru.practicum.server.compilation.CompilationMapper.toCompilationResponseDto;
+import static ru.practicum.server.compilation.CompilationMapper.toCompilationDto;
 import static ru.practicum.server.event.EventMapper.toEventShortDto;
 
 
@@ -70,7 +70,7 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
             ));
         }
         log.debug("Предоставлены данные событий по подборке ID: " + compilationId);
-        return toCompilationResponseDto(compilation, events);
+        return toCompilationDto(compilation, events);
     }
 
     @Override
@@ -94,7 +94,7 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
                         requestRepository.getEventParticipantLimit(event.getId()
                 )));
             }
-            compilationDtoList.add(toCompilationResponseDto(compilation, events));
+            compilationDtoList.add(toCompilationDto(compilation, events));
         }
         log.debug("Предоставлены подборки по запросу");
         return compilationDtoList;

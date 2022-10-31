@@ -53,7 +53,7 @@ public class EventAdminServiceImp implements EventAdminService {
         for (String state : states) {
             for (Integer categoryId : categories) {
                 for (Integer userId : users) {
-                    events.addAll(eventRepository.getEventsForAdmin(state, categoryId, userId, rangeStart,
+                    events.addAll(eventRepository.getEventsForAdmin(state, categoryId.longValue(), userId.longValue(), rangeStart,
                             rangeEnd, pageRequest).toList());
                 }
             }
@@ -76,10 +76,6 @@ public class EventAdminServiceImp implements EventAdminService {
         if (adminUpdateEventRequest.getEventDate() != null) {
             checkCreationTime(adminUpdateEventRequest.getEventDate());
             event.setEventDate(LocalDateTime.parse(adminUpdateEventRequest.getEventDate(), formatter));
-        }
-        if (eventRepository.findById(eventId).get().isRequestModeration()) {
-            log.warn("Событие уже подтверждено и не подлежит изменению");
-            throw new BadRequestException("Событие уже подтверждено и не подлежит изменению");
         }
         if (adminUpdateEventRequest.getTitle() != null) {
             event.setTitle(adminUpdateEventRequest.getTitle());
@@ -153,7 +149,7 @@ public class EventAdminServiceImp implements EventAdminService {
     }
 
     public void checkEventParam(long eventId) {
-        if (eventRepository.findById(eventId).get().getEventDate().isAfter(LocalDateTime.now().minusHours(2))) {
+        if (eventRepository.findById(eventId).get().getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
             throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
         }
@@ -164,7 +160,7 @@ public class EventAdminServiceImp implements EventAdminService {
     }
 
     public void checkCreationTime(String time) {
-        if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().minusHours(2))) {
+        if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
             throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
         }
