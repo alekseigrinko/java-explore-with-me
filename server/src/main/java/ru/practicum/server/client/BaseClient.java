@@ -35,14 +35,17 @@ public class BaseClient {
     }
 
     private <T> ResponseEntity<Object> makeAndSendRequest(HttpMethod method, String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
-        HttpEntity<T> requestEntity = new HttpEntity<>(body);
 
         ResponseEntity<Object> serverResponse;
         try {
-            if (parameters != null) {
-                serverResponse = rest.exchange(path, method, requestEntity, Object.class, parameters);
+            if ((parameters != null) && (body != null)) {
+                serverResponse = rest.exchange(path, method, new HttpEntity<>(body), Object.class, parameters);
+            }  else if ((parameters == null) && (body != null)) {
+                serverResponse = rest.exchange(path, method, new HttpEntity<>(body), Object.class);
+            } else if ((parameters != null) && (body == null)) {
+                serverResponse = rest.exchange(path, method, null, Object.class, parameters);
             } else {
-                serverResponse = rest.exchange(path, method, requestEntity, Object.class);
+                serverResponse = rest.exchange(path, method, null, Object.class);
             }
         } catch (HttpStatusCodeException e) {
             return ResponseEntity.status(e.getStatusCode()).body(e.getResponseBodyAsByteArray());
