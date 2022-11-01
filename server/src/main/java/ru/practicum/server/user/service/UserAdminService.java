@@ -1,6 +1,5 @@
 package ru.practicum.server.user.service;
 
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.server.user.dto.NewUserRequest;
 import ru.practicum.server.user.dto.UserDto;
@@ -11,11 +10,7 @@ public interface UserAdminService {
 
     UserDto addUser(NewUserRequest newUserRequest);
 
-    UserDto updateUser(long userId, UserDto userDto);
-
-    List<UserDto> getAllUsers(PageRequest pageRequest);
-
-    Page<UserDto> getUsers(List<Long> ids, PageRequest pageRequest);
+    List<UserDto> getUsers(List<Integer> ids, PageRequest pageRequest);
 
     UserDto deleteUser(long userId);
 }

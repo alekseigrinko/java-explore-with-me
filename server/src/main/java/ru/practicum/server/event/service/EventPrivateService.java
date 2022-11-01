@@ -10,6 +10,7 @@ import java.util.List;
 public interface EventPrivateService {
 
     List<EventFullDto> getAllUserEvents(long userId, PageRequest pageRequest);
+
     EventFullDto getUserEventById(long userId, long eventId);
 
     EventFullDto addEvent(long userId, NewEventDto newEventDto);

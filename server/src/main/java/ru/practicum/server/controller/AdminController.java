@@ -1,7 +1,6 @@
 package ru.practicum.server.controller;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -64,15 +63,7 @@ public class AdminController {
     }
 
     @GetMapping("/users")
-    List<UserDto> getAllUsers(@RequestParam(value = "from", defaultValue = "0") int from,
-                              @RequestParam(value = "size", defaultValue = "10") int size) {
-        int page = from / size;
-        final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
-        return userAdminService.getAllUsers(pageRequest);
-    }
-
-    @GetMapping("/users/{ids}")
-    Page<UserDto> getUsers(@PathVariable List<Long> ids,
+    List<UserDto> getUsers(@RequestParam List<Integer> ids,
                            @RequestParam(value = "from", defaultValue = "0") int from,
                            @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
@@ -97,13 +88,13 @@ public class AdminController {
 
     @DeleteMapping("/compilations/{compId}/events/{eventId}")
     CompilationDto deleteEventFromCompilation(@PathVariable long compId,
-                                    @PathVariable long eventId) {
+                                              @PathVariable long eventId) {
         return compilationAdminService.deleteEventFromCompilation(compId, eventId);
     }
 
     @PatchMapping("/compilations/{compId}/events/{eventId}")
     CompilationDto putEventFromCompilation(@PathVariable long compId,
-                                 @PathVariable long eventId) {
+                                           @PathVariable long eventId) {
         return compilationAdminService.putEventToCompilation(compId, eventId);
     }
 
@@ -117,7 +108,7 @@ public class AdminController {
         return compilationAdminService.pinnedCompilation(compId);
     }
 
-    @GetMapping( "/events")
+    @GetMapping("/events")
     public List<EventFullDto> getAllEvents(@RequestParam(value = "from", defaultValue = "0") int from,
                                            @RequestParam(value = "size", defaultValue = "10") int size,
                                            @RequestParam(value = "states") List<String> states,

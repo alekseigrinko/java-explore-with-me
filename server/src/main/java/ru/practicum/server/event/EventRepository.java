@@ -35,6 +35,25 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             "and e.isLimit <> ?5 ")
     Page<Event> getPublicAllEventsWithoutRange(String text, long category, boolean paid, LocalDateTime localDateTime, boolean onlyAvailable, PageRequest pageRequest);
 
+    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
+            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
+            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
+            "and e.paid = ?2 " +
+            "and e.eventDate > ?3 " +
+            "and e.eventDate < ?4 " +
+            "and e.isLimit <> ?5 ")
+    Page<Event> getPublicAllEventsWithoutCategory(String text, boolean paid, LocalDateTime rangeStart,
+                                   LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
+
+    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
+            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
+            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
+            "and e.paid = ?2 " +
+            "and e.eventDate > ?3 " +
+            "and e.isLimit <> ?4 ")
+    Page<Event> getPublicAllEventsWithoutCategoryAndRange(String text, boolean paid,
+                                                          LocalDateTime localDateTime, boolean onlyAvailable, PageRequest pageRequest);
+
     @Query(" select e from Event e where (upper(e.state) like upper(concat('%', ?1, '%'))) " +
             "and e.categoryId = ?2 " +
             "and e.initiatorId = ?3 " +

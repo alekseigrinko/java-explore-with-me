@@ -5,16 +5,13 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageImpl;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
-import ru.practicum.server.exeption.ObjectNotFoundException;
-import ru.practicum.server.user.UserMapper;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.dto.NewUserRequest;
 import ru.practicum.server.user.dto.UserDto;
-import ru.practicum.server.user.model.User;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.stream.Collectors;
 
 import static ru.practicum.server.user.UserMapper.toUser;
 import static ru.practicum.server.user.UserMapper.toUserDto;
@@ -36,41 +33,21 @@ public class UserAdminServiceImp implements UserAdminService {
     }
 
     @Override
-    public UserDto updateUser(long userId, UserDto userDto) {
-        checkUser(userId);
-        User userInMemory = userRepository.findById(userId).get();
-        if (userDto.getName() != null) {
-            userInMemory.setName(userDto.getName());
-        }
-        if (userDto.getEmail() != null) {
-            userInMemory.setEmail(userDto.getEmail());
-        }
-        log.debug("Данные пользователя обновлены: " + userInMemory);
-        return toUserDto(userRepository.save(userInMemory));
-    }
-
-    @Override
-    public List<UserDto> getAllUsers(PageRequest pageRequest) {
-        log.debug("Предоставлены данные пользователей по запросу");
-        return userRepository.findAll(pageRequest).stream()
-                .map(UserMapper::toUserDto)
-                .collect(Collectors.toList());
-    }
-
-    @Override
-    public Page<UserDto> getUsers(List<Long> ids, PageRequest pageRequest) {
+    public List<UserDto> getUsers(List<Integer> ids, PageRequest pageRequest) {
         List<UserDto> userDtoList = new ArrayList<>();
-        for (long id : ids) {
-            checkUser(id);
-            userDtoList.add(toUserDto(userRepository.findById(id).get()));
+        for (Integer id : ids) {
+            if (userRepository.existsById(id.longValue())) {
+                userDtoList.add(toUserDto(userRepository.findById(id.longValue()).get()));
+            }
         }
-        Page<UserDto> userDtoPage = new PageImpl<>(userDtoList, pageRequest, pageRequest.getPageSize());
+        Page<UserDto> users = new PageImpl<>(userDtoList, pageRequest, pageRequest.getPageSize());
         log.debug("Предоставлены данные выбранных пользователей: " + ids);
-        return userDtoPage;
+        return users.toList();
     }
 
     @Override
     public UserDto deleteUser(long userId) {
+        checkUser(userId);
         UserDto userDto = toUserDto(userRepository.findById(userId).get());
         userRepository.deleteUser(userId);
         log.debug("Удален пользователь ID: " + userId);
@@ -80,7 +57,7 @@ public class UserAdminServiceImp implements UserAdminService {
     public void checkUser(long userId) {
         if (!userRepository.existsById(userId)) {
             log.warn("Пользователь ID: " + userId + ", не найден!");
-            throw new ObjectNotFoundException("Пользователь ID: " + userId + ", не найден!");
+            throw new ApiError();
         }
     }
 }

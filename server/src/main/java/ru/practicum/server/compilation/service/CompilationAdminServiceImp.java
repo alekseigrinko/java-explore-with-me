@@ -15,12 +15,9 @@ import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.exeption.ApiError;
-import ru.practicum.server.exeption.ObjectNotFoundException;
-import ru.practicum.server.exeption.StatusException;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 
-import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
@@ -188,34 +185,14 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("События ID: " + eventId + ", не найдено!");
-            throw new ObjectNotFoundException("События ID: " + eventId + ", не найдено!");
+            throw new ApiError();
         }
     }
 
     public void checkCompilation(long compilationId) {
-        /*try {
-            if (!compilationRepository.existsById(compilationId)) {
-                log.warn("Подборки ID: " + compilationId + ", не найдено!");
-                throw new ObjectNotFoundException("Подборки ID: " + compilationId + ", не найдено!");
-            }
-        } catch (ObjectNotFoundException e) {
-
-           throw new ApiError(
-                   e.getStackTrace(),
-                   e.getLocalizedMessage(),
-                   e.getMessage(),
-                   StatusException.FORBIDDEN.toString(),
-                   LocalDateTime.now().format(formatter)
-
-           );
-        }*/
         if (!compilationRepository.existsById(compilationId)) {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
-            throw new ObjectNotFoundException("Подборки ID: " + compilationId + ", не найдено!");
+            throw new ApiError();
         }
     }
-
-        public void checkEventInCompilation(long compilationId) {
-            
-        }
 }

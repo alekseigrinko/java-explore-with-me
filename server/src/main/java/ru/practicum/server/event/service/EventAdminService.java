@@ -2,7 +2,6 @@ package ru.practicum.server.event.service;
 
 import org.springframework.data.domain.PageRequest;
 import ru.practicum.server.event.dto.AdminUpdateEventRequest;
-import ru.practicum.server.event.dto.NewEventDto;
 import ru.practicum.server.event.dto.EventFullDto;
 
 import java.time.LocalDateTime;

@@ -13,7 +13,7 @@ import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.event.model.Event;
-import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 
@@ -103,14 +103,14 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("События ID: " + eventId + ", не найдено!");
-            throw new ObjectNotFoundException("События ID: " + eventId + ", не найдено!");
+            throw new ApiError();
         }
     }
 
     public void checkCompilation(long compilationId) {
         if (!compilationRepository.existsById(compilationId)) {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
-            throw new ObjectNotFoundException("Подборки ID: " + compilationId + ", не найдено!");
+            throw new ApiError();
         }
     }
 }

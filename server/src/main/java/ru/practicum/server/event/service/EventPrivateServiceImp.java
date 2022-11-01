@@ -12,8 +12,7 @@ import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.dto.UpdateEventRequest;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.State;
-import ru.practicum.server.exeption.BadRequestException;
-import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
@@ -99,7 +98,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
         }
         if (userId != event.getInitiatorId()) {
             log.warn("Пользователь не имеет прав для редактирования событий");
-            throw new BadRequestException("Пользователь не имеет прав для редактирования событий");
+            throw new ApiError();
         }
         if (updateEventRequest.getTitle() != null) {
             event.setTitle(updateEventRequest.getTitle());
@@ -136,10 +135,6 @@ public class EventPrivateServiceImp implements EventPrivateService {
         checkUser(userId);
         checkEvent(eventId);
         Event event = eventRepository.findById(eventId).get();
-        if (!event.isRequestModeration()) {
-            log.warn("Событие событие должно быть в состоянии модерации");
-            throw new BadRequestException("Событие событие должно быть в состоянии модерации");
-        }
         event.setState(State.CANCELED);
         log.debug("Данные события обновлены: " + event);
         User user = userRepository.findById(event.getInitiatorId()).get();
@@ -151,21 +146,21 @@ public class EventPrivateServiceImp implements EventPrivateService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new ObjectNotFoundException("Событие ID: " + eventId + ", не найдено!");
+            throw new ApiError();
         }
     }
 
     public void checkUser(long userId) {
         if (!userRepository.existsById(userId)) {
             log.warn("Пользователь ID: " + userId + ", не найден!");
-            throw new ObjectNotFoundException("Пользователь ID: " + userId + ", не найден!");
+            throw new ApiError();
         }
     }
 
     public void checkCreationTime(String time) {
         if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
-            throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
+            throw new ApiError();
         }
     }
 }

@@ -6,7 +6,7 @@ import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.model.Category;
-import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.ApiError;
 
 import static ru.practicum.server.category.CategoryMapper.toCategory;
 import static ru.practicum.server.category.CategoryMapper.toCategoryDto;
@@ -49,7 +49,7 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
     public void checkCategory(long categoryId) {
         if (!categoryRepository.existsById(categoryId)) {
             log.warn("Категории ID: " + categoryId + ", не найдено!");
-            throw new ObjectNotFoundException("Категории ID: " + categoryId + ", не найдено!");
+            throw new ApiError();
         }
     }
 }

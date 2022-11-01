@@ -11,8 +11,7 @@ import ru.practicum.server.event.dto.AdminUpdateEventRequest;
 import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.State;
-import ru.practicum.server.exeption.BadRequestException;
-import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
@@ -137,32 +136,32 @@ public class EventAdminServiceImp implements EventAdminService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new ObjectNotFoundException("Событие ID: " + eventId + ", не найдено!");
+            throw new ApiError();
         }
     }
 
     public void checkUser(long userId) {
         if (!userRepository.existsById(userId)) {
             log.warn("Пользователь ID: " + userId + ", не найден!");
-            throw new ObjectNotFoundException("Пользователь ID: " + userId + ", не найден!");
+            throw new ApiError();
         }
     }
 
     public void checkEventParam(long eventId) {
         if (eventRepository.findById(eventId).get().getEventDate().isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
-            throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
+            throw new ApiError();
         }
         if (eventRepository.findById(eventId).get().getState() != State.PENDING) {
             log.warn("Событие должно быть в состоянии ожидании публикации");
-            throw new BadRequestException("Событие должно быть в состоянии ожидании публикации");
+            throw new ApiError();
         }
     }
 
     public void checkCreationTime(String time) {
         if (LocalDateTime.parse(time, formatter).isBefore(LocalDateTime.now().plusHours(2))) {
             log.warn("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
-            throw new BadRequestException("Событие не может быть отредактировано меньше чем за 2 часа до его начала");
+            throw new ApiError();
         }
     }
 }

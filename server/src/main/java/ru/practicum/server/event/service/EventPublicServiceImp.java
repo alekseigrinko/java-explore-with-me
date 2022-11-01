@@ -10,7 +10,7 @@ import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.SortEvent;
-import ru.practicum.server.exeption.ObjectNotFoundException;
+import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
@@ -48,13 +48,26 @@ public class EventPublicServiceImp implements EventPublicService {
     @Override
     public List<EventFullDto> getAllEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, boolean onlyAvailable, SortEvent sort, PageRequest pageRequest) {
+        if (text.equals("0") || text == null) {
+            text = "";
+        }
         List<Event> events = new ArrayList<>();
-        for (Integer categoryId : categories) {
+        if (categories.size() != 0 || categories == null) {
+            for (Integer categoryId : categories) {
+                if (rangeStart != null) {
+                    events.addAll(eventRepository.getPublicAllEvents(text, categoryId.longValue(), paid, rangeStart,
+                            rangeEnd, onlyAvailable, pageRequest).toList());
+                } else {
+                    events.addAll(eventRepository.getPublicAllEventsWithoutRange(text, categoryId.longValue(), paid,
+                            LocalDateTime.now(), onlyAvailable, pageRequest).toList());
+                }
+            }
+        } else {
             if (rangeStart != null) {
-                events.addAll(eventRepository.getPublicAllEvents(text, categoryId.longValue(), paid, rangeStart,
+                events.addAll(eventRepository.getPublicAllEventsWithoutCategory(text, paid, rangeStart,
                         rangeEnd, onlyAvailable, pageRequest).toList());
             } else {
-                events.addAll(eventRepository.getPublicAllEventsWithoutRange(text, categoryId.longValue(), paid,
+                events.addAll(eventRepository.getPublicAllEventsWithoutCategoryAndRange(text, paid,
                         LocalDateTime.now(), onlyAvailable, pageRequest).toList());
             }
         }
@@ -116,7 +129,7 @@ public class EventPublicServiceImp implements EventPublicService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new ObjectNotFoundException("Событие ID: " + eventId + ", не найдено!");
+            throw new ApiError();
         }
     }
 }
