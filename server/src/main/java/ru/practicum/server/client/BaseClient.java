@@ -22,7 +22,7 @@ public class BaseClient {
         return get(path, parameters, null);
     }
 
-    protected <T> ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters, T body) {
+    protected <T> ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters, @Nullable T body) {
         return makeAndSendRequest(HttpMethod.GET, path, parameters, body);
     }
 
