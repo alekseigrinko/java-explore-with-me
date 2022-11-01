@@ -18,7 +18,6 @@ import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -38,8 +37,6 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     private final UserRepository userRepository;
     private final RequestRepository requestRepository;
     private final EventClient eventClient;
-    static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
-
 
     public CompilationAdminServiceImp(EventRepository eventRepository, CompilationRepository compilationRepository,
                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository,

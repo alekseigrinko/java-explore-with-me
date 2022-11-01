@@ -15,7 +15,6 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
 
     List<Request> getAllByRequester(long requesterId);
 
-    @Query("select r from Request r where r.requester = ?1 and r.event = ?2 ")
-    List<Request> getAllRequestsByUserForEvent(long requesterId, long eventId);
+    List<Request> findAllByEvent(long event);
 
 }

@@ -80,7 +80,11 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     public List<ParticipationRequestDto> getRequestsForEventByUser(long userId, long eventId) {
         checkUser(userId);
         checkEvent(eventId);
-        List<Request> requests = requestRepository.getAllRequestsByUserForEvent(userId, eventId);
+        if (userId != eventRepository.findById(eventId).get().getInitiatorId()) {
+            log.warn("Пользователь не является инициатором события");
+            throw new ApiError();
+        }
+        List<Request> requests = requestRepository.findAllByEvent(eventId);
         List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
         for (Request request : requests) {
             participationRequestDtoList.add(toParticipationRequestDto(request));

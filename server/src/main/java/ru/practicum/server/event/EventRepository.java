@@ -4,55 +4,17 @@ import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
+import org.springframework.data.querydsl.QuerydslPredicateExecutor;
 import ru.practicum.server.event.model.Event;
 
 import java.time.LocalDateTime;
 
-public interface EventRepository extends JpaRepository<Event, Long> {
+public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPredicateExecutor<Event> {
 
     @Query("select e from Event e " +
             " where e.initiatorId = ?1" +
             " order by e.createdOn desc ")
     Page<Event> getAllUserEvents(long userId, PageRequest pageRequest);
-
-    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
-            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
-            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
-            "and e.categoryId = ?2 " +
-            "and e.paid = ?3 " +
-            "and e.eventDate > ?4 " +
-            "and e.eventDate < ?5 " +
-            "and e.isLimit <> ?6 ")
-    Page<Event> getPublicAllEvents(String text, long category, boolean paid, LocalDateTime rangeStart,
-                                   LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
-
-    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
-            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
-            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
-            "and e.categoryId = ?2 " +
-            "and e.paid = ?3 " +
-            "and e.eventDate > ?4 " +
-            "and e.isLimit <> ?5 ")
-    Page<Event> getPublicAllEventsWithoutRange(String text, long category, boolean paid, LocalDateTime localDateTime, boolean onlyAvailable, PageRequest pageRequest);
-
-    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
-            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
-            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
-            "and e.paid = ?2 " +
-            "and e.eventDate > ?3 " +
-            "and e.eventDate < ?4 " +
-            "and e.isLimit <> ?5 ")
-    Page<Event> getPublicAllEventsWithoutCategory(String text, boolean paid, LocalDateTime rangeStart,
-                                   LocalDateTime rangeEnd, boolean onlyAvailable, PageRequest pageRequest);
-
-    @Query(" select e from Event e where e.state = 'PUBLISHER' " +
-            "and (upper(e.annotation) like upper(concat('%', ?1, '%')) "
-            + "or upper(e.description) like upper(concat('%', ?1, '%')) ) " +
-            "and e.paid = ?2 " +
-            "and e.eventDate > ?3 " +
-            "and e.isLimit <> ?4 ")
-    Page<Event> getPublicAllEventsWithoutCategoryAndRange(String text, boolean paid,
-                                                          LocalDateTime localDateTime, boolean onlyAvailable, PageRequest pageRequest);
 
     @Query(" select e from Event e where (upper(e.state) like upper(concat('%', ?1, '%'))) " +
             "and e.categoryId = ?2 " +

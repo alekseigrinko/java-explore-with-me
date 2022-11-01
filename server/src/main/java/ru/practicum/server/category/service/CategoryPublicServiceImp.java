@@ -8,6 +8,7 @@ import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.exeption.ApiError;
 
+import javax.persistence.EntityNotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -38,10 +39,10 @@ public class CategoryPublicServiceImp implements CategoryPublicService {
         return toCategoryDto(categoryRepository.findById(categoryId).get());
     }
 
-    public void checkCategory(long categoryId) {
+    public void checkCategory(long categoryId) throws ApiError {
         if (!categoryRepository.existsById(categoryId)) {
             log.warn("Категории ID: " + categoryId + ", не найдено!");
-            throw new ApiError();
+            throw new EntityNotFoundException();
         }
     }
 }

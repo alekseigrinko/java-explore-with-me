@@ -1,7 +1,9 @@
 package ru.practicum.server.event.service;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.model.Category;
@@ -9,7 +11,9 @@ import ru.practicum.server.event.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.model.Event;
+import ru.practicum.server.event.model.QEvent;
 import ru.practicum.server.event.model.SortEvent;
+import ru.practicum.server.event.model.State;
 import ru.practicum.server.exeption.ApiError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
@@ -48,39 +52,18 @@ public class EventPublicServiceImp implements EventPublicService {
     @Override
     public List<EventFullDto> getAllEvents(String text, List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, boolean onlyAvailable, SortEvent sort, PageRequest pageRequest) {
-        if (text.equals("0") || text == null) {
-            text = "";
-        }
-        List<Event> events = new ArrayList<>();
-        if (categories.size() != 0 || categories == null) {
-            for (Integer categoryId : categories) {
-                if (rangeStart != null) {
-                    events.addAll(eventRepository.getPublicAllEvents(text, categoryId.longValue(), paid, rangeStart,
-                            rangeEnd, onlyAvailable, pageRequest).toList());
-                } else {
-                    events.addAll(eventRepository.getPublicAllEventsWithoutRange(text, categoryId.longValue(), paid,
-                            LocalDateTime.now(), onlyAvailable, pageRequest).toList());
-                }
-            }
-        } else {
-            if (rangeStart != null) {
-                events.addAll(eventRepository.getPublicAllEventsWithoutCategory(text, paid, rangeStart,
-                        rangeEnd, onlyAvailable, pageRequest).toList());
-            } else {
-                events.addAll(eventRepository.getPublicAllEventsWithoutCategoryAndRange(text, paid,
-                        LocalDateTime.now(), onlyAvailable, pageRequest).toList());
-            }
-        }
-        List<EventFullDto> eventFullDtos = new ArrayList<>();
+        Iterable<Event> events = eventRepository.findAll(formatExpression(text, categories, paid, rangeStart,
+                rangeEnd), pageRequest);
+        List<EventFullDto> eventFullDtoList = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();
             Category category = categoryRepository.findById(event.getCategoryId()).get();
-            eventFullDtos.add(toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
+            eventFullDtoList.add(toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
                     requestRepository.getEventParticipantLimit(event.getId())));
         }
-        log.debug("Предоставлены данные по событиям");
         if (sort == SortEvent.EVENT_DATE) {
-            eventFullDtos.stream().sorted(new Comparator<EventFullDto>() {
+            eventFullDtoList.stream()
+                    .sorted(new Comparator<EventFullDto>() {
                         @Override
                         public int compare(EventFullDto o1, EventFullDto o2) {
                             if (LocalDateTime.parse(o1.getEventDate(), formatter)
@@ -96,9 +79,8 @@ public class EventPublicServiceImp implements EventPublicService {
                     })
                     .collect(Collectors.toList());
         }
-
         if (sort == SortEvent.VIEWS) {
-            eventFullDtos.stream().sorted(new Comparator<EventFullDto>() {
+            eventFullDtoList.stream().sorted(new Comparator<EventFullDto>() {
                         @Override
                         public int compare(EventFullDto o1, EventFullDto o2) {
                             if (o1.getViews() > o2.getViews()) {
@@ -112,7 +94,45 @@ public class EventPublicServiceImp implements EventPublicService {
                     })
                     .collect(Collectors.toList());
         }
-        return eventFullDtos;
+
+        for (EventFullDto eventFullDto : eventFullDtoList) {
+            if (onlyAvailable) {
+                if (requestRepository.getEventParticipantLimit(eventFullDto.getId()) != eventFullDto.getParticipantLimit()) {
+                    eventFullDtoList.remove(eventFullDto);
+                }
+            } else {
+                if (requestRepository.getEventParticipantLimit(eventFullDto.getId()) == eventFullDto.getParticipantLimit()) {
+                    eventFullDtoList.remove(eventFullDto);
+                }
+            }
+        }
+        return eventFullDtoList;
+    }
+
+    private BooleanExpression formatExpression(String text, List<Integer> categoriesList, @Nullable boolean paid, LocalDateTime rangeStart,
+                                               LocalDateTime rangeEnd) {
+        BooleanExpression result = QEvent.event.state.eq(State.PUBLISHED);
+        result = result.and(QEvent.event.description.likeIgnoreCase(text)
+                .or(QEvent.event.annotation.likeIgnoreCase(text)));
+
+        if (categoriesList != null) {
+            List<Long> categories = new ArrayList<>();
+            for (Integer i : categoriesList) {
+                categories.add(i.longValue());
+            }
+            result = result.and(QEvent.event.categoryId.in(categories));
+        }
+        result = result.and(QEvent.event.paid.eq(paid)); // уточнить
+        if (rangeStart != null && rangeEnd != null) {
+            result = result.and(QEvent.event.eventDate.after(LocalDateTime.now()));
+        }
+        if (rangeStart != null) {
+            result = result.and(QEvent.event.eventDate.after(rangeStart));
+        }
+        if (rangeEnd != null) {
+            result = result.and(QEvent.event.eventDate.before(rangeEnd));
+        }
+        return result;
     }
 
     @Override

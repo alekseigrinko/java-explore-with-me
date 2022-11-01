@@ -40,6 +40,7 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
 
     @Override
     public CategoryDto deleteCategory(long categoryId) {
+        checkCategory(categoryId);
         CategoryDto categoryDto = toCategoryDto(categoryRepository.findById(categoryId).get());
         categoryRepository.deleteById(categoryId);
         log.debug("Удалена категория ID: " + categoryId);
