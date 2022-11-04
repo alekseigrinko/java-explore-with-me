@@ -5,6 +5,10 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO-класс с данными заявки на участие в событии
+ * @see ru.practicum.server.request.model.Request
+ * */
 @Getter
 @Setter
 @AllArgsConstructor

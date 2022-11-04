@@ -8,8 +8,14 @@ import ru.practicum.server.event.dto.EventShortDto;
 import java.time.LocalDateTime;
 import java.util.List;
 
+/**
+ * Маппер для работы с моделями и DTO-классами пакета compilation
+ * */
 public class CompilationMapper {
 
+    /**
+     * Метод конвертации данных подборки из DTO-класса в модель Compilation
+     * */
     public static Compilation toCompilation(NewCompilationDto newCompilationDto) {
         return new Compilation(
                 null,
@@ -19,6 +25,11 @@ public class CompilationMapper {
         );
     }
 
+    /**
+     * Метод конвертации данных категории из репозитория в DTO-класс.
+     * Используется список DTO событий
+     * @see EventShortDto
+     * */
     public static CompilationDto toCompilationDto(Compilation compilation, List<EventShortDto> events) {
         return new CompilationDto(
                 compilation.getId(),

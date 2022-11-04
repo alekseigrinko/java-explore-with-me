@@ -10,6 +10,13 @@ import ru.practicum.server.user.dto.UserShortDto;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+/**
+ * DTO-класс для предоставления данных подборок событий
+ * В DTO содержатся класс категории, пользователя
+ * @see ru.practicum.server.event.model.Event
+ * @see CategoryDto
+ * @see UserShortDto
+ * */
 @Getter
 @Setter
 @AllArgsConstructor

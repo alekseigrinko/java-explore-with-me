@@ -7,6 +7,11 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * DTO-класс для возврата данных пользователя
+ * @see ru.practicum.server.user.model.User
+ * */
+
 @Getter
 @Setter
 @AllArgsConstructor

@@ -7,10 +7,16 @@ import ru.practicum.server.request.model.Status;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Маппер для работы с моделями и DTO-классами пакета request
+ * */
 public class RequestMapper {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Метод конвертации данных из репозитория в DTO
+     * */
     public static ParticipationRequestDto toParticipationRequestDto(Request request) {
         return new ParticipationRequestDto(
                 request.getCreated().format(formatter),
@@ -21,6 +27,9 @@ public class RequestMapper {
         );
     }
 
+    /**
+     * Метод конвертации данных из DTO в модель Request
+     * */
     public static Request toRequest(ParticipationRequestDto participationRequestDto) {
         return new Request(
                 participationRequestDto.getId(),

@@ -5,13 +5,33 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+import java.util.List;
+
+/**
+ * Абстрактный класс для реализации шаблона исключения
+ * */
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class ApiError extends RuntimeException {
-    String status; // Код статуса HTTP-ответа (example: FORBIDDEN)
-    String reason; // Общее описание причины ошибки
-    String message; // Сообщение об ошибке
-    String timestamp; // Дата и время когда произошла ошибка (в формате "yyyy-MM-dd HH:mm:ss")
+public abstract class ApiError extends RuntimeException {
+    /**
+     * Код статуса HTTP-ответа
+     * */
+    private String status;
+
+    /**
+     * Общее описание причины ошибки
+     * */
+    private String reason;
+
+    /**
+     * Сообщение об ошибке
+     * */
+    private String message;
+
+    /**
+     * Время и дата ошибки
+     * */
+    private String timestamp;
 }

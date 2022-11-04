@@ -5,7 +5,8 @@ import org.springframework.stereotype.Service;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.model.Event;
 import ru.practicum.server.event.model.State;
-import ru.practicum.server.exeption.ApiError;
+import ru.practicum.server.exeption.BadRequestError;
+import ru.practicum.server.exeption.NotFoundError;
 import ru.practicum.server.request.RequestMapper;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.request.dto.ParticipationRequestDto;
@@ -22,12 +23,30 @@ import java.util.stream.Collectors;
 import static ru.practicum.server.request.RequestMapper.toRequest;
 import static ru.practicum.server.request.RequestMapper.toParticipationRequestDto;
 
+/**
+ * реализация интерфейса пользователя по работе с данными запросов ан участие в событиях
+ * @see RequestPrivateService
+ * */
 @Service
 @Slf4j
 public class RequestPrivateServiceImp implements RequestPrivateService {
 
+    /**
+     * репозиторий пользователей
+     * @see UserRepository
+     * */
     private final UserRepository userRepository;
+
+    /**
+     * репозиторий запросов на участие в событиях
+     * @see RequestRepository
+     * */
     private final RequestRepository requestRepository;
+
+    /**
+     * репозиторий событий
+     * @see EventRepository
+     * */
     private final EventRepository eventRepository;
 
     private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
@@ -38,6 +57,9 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         this.eventRepository = eventRepository;
     }
 
+    /**
+     * @see RequestPrivateService#postRequest(long, long)
+     * */
     @Override
     public ParticipationRequestDto postRequest(long userId, long eventId) {
         checkUser(eventId);
@@ -53,6 +75,9 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return toParticipationRequestDto(requestRepository.save(toRequest(participationRequestDto)));
     }
 
+    /**
+     * @see RequestPrivateService#canceledRequest(long, long)
+     * */
     @Override
     public ParticipationRequestDto canceledRequest(long requestId, long userId) {
         checkUser(userId);
@@ -67,6 +92,9 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return toParticipationRequestDto(requestRepository.save(request));
     }
 
+    /**
+     * @see RequestPrivateService#getAllUsersRequests(long)
+     * */
     @Override
     public List<ParticipationRequestDto> getAllUsersRequests(long userId) {
         checkUser(userId);
@@ -76,13 +104,16 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
                 .collect(Collectors.toList());
     }
 
+    /**
+     * @see RequestPrivateService#getRequestsForEventByUser(long, long)
+     * */
     @Override
     public List<ParticipationRequestDto> getRequestsForEventByUser(long userId, long eventId) {
         checkUser(userId);
         checkEvent(eventId);
         if (userId != eventRepository.findById(eventId).get().getInitiatorId()) {
             log.warn("Пользователь не является инициатором события");
-            throw new ApiError();
+            throw new BadRequestError("Пользователь не является инициатором события");
         }
         List<Request> requests = requestRepository.findAllByEvent(eventId);
         List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();
@@ -93,6 +124,9 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return participationRequestDtoList;
     }
 
+    /**
+     * @see RequestPrivateService#confirmRequest(long, long, long)
+     * */
     @Override
     public ParticipationRequestDto confirmRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
@@ -106,6 +140,9 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return toParticipationRequestDto(requestRepository.save(request));
     }
 
+    /**
+     * @see RequestPrivateService#rejectRequest(long, long, long)
+     * */
     @Override
     public ParticipationRequestDto rejectRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
@@ -121,43 +158,62 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return toParticipationRequestDto(requestRepository.save(request));
     }
 
-
+    /**
+     * метод проверки наличия пользователя по ID в репозитории
+     * @throws NotFoundError - при отсутствии пользователя по ID
+     * */
     public void checkUser(long userId) {
         if (!userRepository.existsById(userId)) {
             log.warn("Пользователь ID: " + userId + ", не найден!");
-            throw new ApiError();
+            throw new NotFoundError("Пользователь ID: " + userId + ", не найден!");
         }
     }
 
+    /**
+     * метод проверки наличия запроса на участие в событии по ID в репозитории
+     * @throws NotFoundError - при отсутствии запроса по ID
+     * */
     public void checkRequest(long requestId) {
         if (!requestRepository.existsById(requestId)) {
             log.warn("Запрос ID: " + requestId + ", не найден!");
-            throw new ApiError();
+            throw new NotFoundError("Запрос ID: " + requestId + ", не найден!");
         }
     }
 
+    /**
+     * метод проверки наличия события по ID в репозитории
+     * @throws NotFoundError - при отсутствии события по ID
+     * */
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new ApiError();
+            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
         }
     }
 
+    /**
+     * метод проверки размещения запроса на участие в событии
+     * @throws BadRequestError - при нарушении условий подачи запроса инициатором события,
+     * подачи запроса на неопубликованное событие, события достигнут лимит участников
+     * */
     public void checkEventForRequest(long eventId, long userId) {
         if (eventRepository.findById(eventId).get().getInitiatorId() == userId) {
             log.warn("Инициатор события не может подавать запрос на участие в нем!");
-            throw new ApiError();
+            throw new BadRequestError("Инициатор события не может подавать запрос на участие в нем!");
         }
         if (eventRepository.findById(eventId).get().getState() != State.PUBLISHED) {
             log.warn("Запрос не может быть подан на не опубликованное событие!");
-            throw new ApiError();
+            throw new BadRequestError("Запрос не может быть подан на не опубликованное событие!");
         }
         if (eventRepository.findById(eventId).get().getParticipantLimit() == requestRepository.getEventParticipantLimit(eventId)) {
             log.warn("Достигнут лимит участников в событии!");
-            throw new ApiError();
+            throw new BadRequestError("Достигнут лимит участников в событии!");
         }
     }
 
+    /**
+     * метод проверки статуса запроса
+     * */
     public Status checkStatusRequest(long eventId) {
         if (!eventRepository.findById(eventId).get().isRequestModeration()) {
             checkMaxRequest(eventId);
@@ -166,11 +222,15 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         return Status.PENDING;
     }
 
+    /**
+     * метод проверки лимита участников события
+     * @throws BadRequestError - у события достигнут лимит участников
+     * */
     public void checkMaxRequest(long eventId) {
         if (requestRepository.getEventParticipantLimit(eventId) == eventRepository.findById(eventId).get()
                 .getParticipantLimit()) {
             log.warn("Достигнут лимит участников в событии!");
-            throw new ApiError();
+            throw new BadRequestError("Достигнут лимит участников в событии!");
         }
     }
 }

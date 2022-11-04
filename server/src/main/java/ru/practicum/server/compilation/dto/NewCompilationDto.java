@@ -5,6 +5,9 @@ import lombok.*;
 import javax.validation.constraints.NotBlank;
 import java.util.List;
 
+/**
+ * DTO-класс для новых подборок событий
+ * */
 @Getter
 @Setter
 @AllArgsConstructor

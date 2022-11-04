@@ -9,6 +9,12 @@ import ru.practicum.server.event.model.Location;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+/**
+ * DTO-класс для сохранения данных нового событий
+ * В DTO содержится класс локации
+ * @see ru.practicum.server.event.model.Event
+ * @see Location
+ * */
 @Getter
 @Setter
 @AllArgsConstructor

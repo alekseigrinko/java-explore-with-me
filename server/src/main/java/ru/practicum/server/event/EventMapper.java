@@ -14,10 +14,16 @@ import ru.practicum.server.user.model.User;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 
+/**
+ * Маппер для работы с моделями и DTO-классами пакета event
+ * */
 public class EventMapper {
 
     static DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
+    /**
+     * Метод конвертации данных из DTO нового события в модель Event
+     * */
     public static Event toEvent(NewEventDto newEventDto, long userId) {
         return new Event(
                 null,
@@ -39,6 +45,13 @@ public class EventMapper {
         );
     }
 
+    /**
+     * Метод конвертации данных события из репозитория в DTO-класс для получения полной информации о событии.
+     * Используются классы категории, пользователя, локации
+     * @see CategoryDto
+     * @see UserShortDto
+     * @see Location
+     * */
     public static EventFullDto toEventFullDto(Event event, User user, Category category,
                                               long views, long confirmedRequests) {
         return new EventFullDto(
@@ -70,6 +83,12 @@ public class EventMapper {
         );
     }
 
+    /**
+     * Метод конвертации данных события из репозитория в DTO-класс для предоставления подборки событий.
+     * Используются классы категории, пользователя
+     * @see CategoryDto
+     * @see UserShortDto
+     * */
     public static EventShortDto toEventShortDto(Event event, User user, Category category,
                                                 long views, long confirmedRequests) {
         return new EventShortDto(
@@ -90,6 +109,9 @@ public class EventMapper {
         );
     }
 
+    /**
+     * Метод проверки даты публикации события
+     * */
     static String getPublished(Event event) {
         if (event.getPublishedOn() == null) {
             return null;

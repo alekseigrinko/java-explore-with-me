@@ -7,6 +7,11 @@ import lombok.Setter;
 
 import javax.validation.constraints.NotBlank;
 
+/**
+ * DTO-класс для регистрации данных новой категории
+ * @see ru.practicum.server.category.model.Category
+ * */
+
 @Getter
 @Setter
 @AllArgsConstructor

@@ -5,6 +5,9 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+/**
+ * DTO-класс для получения данных в сервер статистики
+ * */
 @Getter
 @Setter
 @AllArgsConstructor

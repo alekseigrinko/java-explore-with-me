@@ -8,6 +8,10 @@ import lombok.Setter;
 import javax.validation.constraints.NotBlank;
 import javax.validation.constraints.NotNull;
 
+/**
+ * DTO-класс для возврата данных категории
+ * @see ru.practicum.server.category.model.Category
+ * */
 @Getter
 @Setter
 @AllArgsConstructor
