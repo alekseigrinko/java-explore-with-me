@@ -16,6 +16,7 @@
 
 Запуск модуля осуществляется через файл:
 ExploreServer пакета server
+https://github.com/alekseigrinko/java-explore-with-me/blob/develop/server/src/main/java/ru/practicum/server/ExploreServer.java
 
 
 Второй модуль сервер статистики:
