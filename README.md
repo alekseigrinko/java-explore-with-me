@@ -17,7 +17,8 @@
 Запуск модуля осуществляется через файл:
 ExploreServer пакета server
 https://github.com/alekseigrinko/java-explore-with-me/blob/develop/server/src/main/java/ru/practicum/server/ExploreServer.java
-ссылка на сваггер файл:
+
+Ссылка на сваггер файл:
 https://github.com/alekseigrinko/java-explore-with-me/blob/develop/ewm-main-service-spec.json
 
 Второй модуль сервер статистики:
@@ -31,7 +32,8 @@ https://github.com/alekseigrinko/java-explore-with-me/blob/develop/ewm-main-serv
    Запуск модуля осуществляется через файл:
    ExploreStatistic пакета statistic
    https://github.com/alekseigrinko/java-explore-with-me/blob/develop/statistic/src/main/java/ru/practicum/statistic/ExploreStatistic.java
-ссылка на сваггер файл:
+   
+Ссылка на сваггер файл:
 https://github.com/alekseigrinko/java-explore-with-me/blob/develop/ewm-stats-service-spec.json
 
 Для работы приложения необходимо запускать два файла одновременно.
