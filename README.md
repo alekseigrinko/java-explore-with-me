@@ -38,6 +38,8 @@ https://github.com/alekseigrinko/java-explore-with-me/blob/develop/ewm-stats-ser
 
 Для работы приложения необходимо запускать два файла одновременно.
 Возможен запуск через docker-compose.yml в основном каталоге проекта
+https://github.com/alekseigrinko/java-explore-with-me/blob/develop/docker-compose.yml
+
 Приложение написано на Java. Пример кода:
 ```java
 public class Main {
