@@ -1,4 +1,5 @@
 # Java-explore-with-me
+ссылка на Пулл-реквест https://github.com/alekseigrinko/java-explore-with-me/pull/2
 
 ## Это репозиторий проекта "Explore-with-me"
 #### Реализован функционал, согласно представленному ТЗ
