@@ -9,7 +9,7 @@ import javax.persistence.*;
 import java.time.LocalDateTime;
 
 /**
- * Класс модели "Request" для сохранения в репозиторий по запрос на участие в событиях
+ * Класс модели "Request" для сохранения в репозиторий запроса на участие в событиях
  * @see ru.practicum.server.request.RequestRepository
  */
 @Entity

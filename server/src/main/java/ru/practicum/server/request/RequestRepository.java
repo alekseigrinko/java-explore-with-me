@@ -37,4 +37,12 @@ public interface RequestRepository extends JpaRepository<Request, Long> {
      * */
     List<Request> findAllByEvent(long event);
 
+    /**
+     * Метод получения запроса на участие в событии по ID пользователя и события
+     * @param event - ID события
+     * @param requester - ID инициатора запроса
+     * @return запрос на участие в событии
+     * @see Request
+     * */
+    Request findByEventAndRequester(long event, long requester);
 }
