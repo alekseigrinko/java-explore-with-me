@@ -42,6 +42,7 @@ https://github.com/alekseigrinko/java-explore-with-me/blob/develop/docker-compos
 
 Доработана Feature проекта:
 Реализация комментариев к событиям.
+Ветка реализована в пакете comment main server-а
 
 Ссылка на пулл-реквест ветки: https://github.com/alekseigrinko/java-explore-with-me/pull/3
 
