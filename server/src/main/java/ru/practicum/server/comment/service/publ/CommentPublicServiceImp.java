@@ -1,7 +1,6 @@
 package ru.practicum.server.comment.service.publ;
 
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.model.Category;
@@ -26,8 +25,9 @@ import static ru.practicum.server.event.EventMapper.toEventShortDto;
 
 /**
  * реализация публичного интерфейса по работе с данными комментариев пользователей
+ *
  * @see CommentPublicService
- * */
+ */
 @Service
 @Slf4j
 public class CommentPublicServiceImp implements CommentPublicService {
@@ -86,13 +86,13 @@ public class CommentPublicServiceImp implements CommentPublicService {
     }
 
     /**
-     * @see CommentPublicService#getCommentByEvent(long, PageRequest)
-     * */
+     * @see CommentPublicService#getCommentByEvent(long)
+     */
     @Override
-    public CommentEventRequestDto getCommentByEvent(long eventId, PageRequest pageRequest) {
+    public CommentEventRequestDto getCommentByEvent(long eventId) {
         checkEvent(eventId);
         Event event = eventRepository.findById(eventId).get();
-        List<CommentEventRequestDto.CommentShortDto> comments = commentRepository.findAllByEvent(eventId, pageRequest)
+        List<CommentEventRequestDto.CommentShortDto> comments = commentRepository.findAllByEvent(eventId)
                 .stream()
                 .map(this::returnCommentShortDto)
                 .collect(Collectors.toList());
@@ -114,6 +114,7 @@ public class CommentPublicServiceImp implements CommentPublicService {
 
     /**
      * метод конвертации данных в краткий DTO комментария
+     *
      * @see ru.practicum.server.comment.dto.CommentEventRequestDto.CommentShortDto
      * @see ru.practicum.server.comment.CommentMapper#toCommentShortDto(Comment, User)
      */
@@ -124,6 +125,7 @@ public class CommentPublicServiceImp implements CommentPublicService {
 
     /**
      * метод конвертации данных в краткий DTO события
+     *
      * @see EventShortDto
      * @see ru.practicum.server.event.EventMapper#toEventShortDto(Event, User, Category, long, long)
      */
@@ -136,6 +138,6 @@ public class CommentPublicServiceImp implements CommentPublicService {
                 category,
                 eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(event.getId())
-                );
+        );
     }
 }

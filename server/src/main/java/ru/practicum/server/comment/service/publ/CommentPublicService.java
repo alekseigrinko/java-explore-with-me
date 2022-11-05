@@ -1,6 +1,5 @@
 package ru.practicum.server.comment.service.publ;
 
-import org.springframework.data.domain.PageRequest;
 import ru.practicum.server.comment.dto.CommentEventRequestDto;
 
 /**
@@ -14,5 +13,5 @@ public interface CommentPublicService {
      * @return DTO события с комментариями пользователей
      * @see CommentEventRequestDto
      * */
-    CommentEventRequestDto getCommentByEvent(long eventId, PageRequest pageRequest);
+    CommentEventRequestDto getCommentByEvent(long eventId);
 }

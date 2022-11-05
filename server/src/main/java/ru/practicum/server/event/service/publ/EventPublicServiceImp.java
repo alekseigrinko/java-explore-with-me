@@ -121,7 +121,7 @@ public class EventPublicServiceImp implements EventPublicService {
                         public int compare(EventFullDto o1, EventFullDto o2) {
                             if (o1.getViews() > o2.getViews()) {
                                 return 1;
-                            } else if (o2.getViews() < o2.getViews()) {
+                            } else if (o1.getViews() < o2.getViews()) {
                                 return -1;
                             } else {
                                 return 0;

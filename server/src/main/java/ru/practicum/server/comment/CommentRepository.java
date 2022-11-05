@@ -3,7 +3,10 @@ package ru.practicum.server.comment;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.data.jpa.repository.Query;
 import ru.practicum.server.comment.model.Comment;
+
+import java.util.List;
 
 /**
  * Интерфейс для работы с репозиторием комментариев пользователей
@@ -23,8 +26,11 @@ public interface CommentRepository extends JpaRepository<Comment, Long> {
     /**
      * Метод получения всех комментариев события
      * @param eventId - ID события
-     * @return возвращает страницу комментариев на заданное событие
+     * @return возвращает список комментариев на заданное событие
      * @see Comment
      * */
-    Page<Comment> findAllByEvent(long eventId, PageRequest pageRequest);
+    @Query("select c from Comment c " +
+            " where c.event = ?1" +
+            " order by c.created desc ")
+    List<Comment> findAllByEvent(long eventId);
 }
