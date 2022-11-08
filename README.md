@@ -54,6 +54,7 @@ https://github.com/alekseigrinko/java-explore-with-me/blob/develop/docker-compos
 Через контроллер администратора можно удалить комментарий пользователя.
 Ссылка на Postman тесты:
 https://www.getpostman.com/collections/e680858dd70581e99069
+https://github.com/alekseigrinko/java-explore-with-me/blob/feature/postman/Test%20Explore%20With%20Me%20-%20Feature.postman_collection.json
 
 Новая диаграмма базы с учетом хранилища комментариев:
 
