@@ -18,7 +18,7 @@ import static ru.practicum.server.category.CategoryMapper.toCategoryDto;
  * */
 @Service
 @Slf4j
-public class CategoryAdminAdminServiceImp implements CategoryAdminService {
+public class CategoryAdminServiceImp implements CategoryAdminService {
 
     /**
      * репозиторий категорий
@@ -26,7 +26,7 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
      * */
     private final CategoryRepository categoryRepository;
 
-    public CategoryAdminAdminServiceImp(CategoryRepository categoryRepository) {
+    public CategoryAdminServiceImp(CategoryRepository categoryRepository) {
         this.categoryRepository = categoryRepository;
     }
 
@@ -46,8 +46,7 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
      * */
     @Override
     public CategoryDto updateCategory(@NonNull CategoryDto categoryDto) {
-        checkCategory(categoryDto.getId());
-        Category categoryInMemory = categoryRepository.findById(categoryDto.getId()).get();
+        Category categoryInMemory = returnCategoryWithCheck(categoryDto.getId());
         if (categoryDto.getName() != null) {
             categoryInMemory.setName(categoryDto.getName());
         }
@@ -60,21 +59,21 @@ public class CategoryAdminAdminServiceImp implements CategoryAdminService {
      * */
     @Override
     public CategoryDto deleteCategory(long categoryId) {
-        checkCategory(categoryId);
-        CategoryDto categoryDto = toCategoryDto(categoryRepository.findById(categoryId).get());
+        CategoryDto categoryDto = toCategoryDto(returnCategoryWithCheck(categoryId));
         categoryRepository.deleteById(categoryId);
         log.debug("Удалена категория ID: " + categoryId);
         return categoryDto;
     }
 
     /**
-     * метод проверки наличия категории по ID в репозитории
+     * метод проверки наличия категории по ID в репозитории и ее получения
+     * @return  возвращает категорию по ID
      * @throws NotFoundError - при отсутствии категории по ID
      * */
-    public void checkCategory(long categoryId) {
-        if (!categoryRepository.existsById(categoryId)) {
+    public Category returnCategoryWithCheck(long categoryId) {
+        return categoryRepository.findById(categoryId).orElseThrow(() -> {
             log.warn("Категории ID: " + categoryId + ", не найдено!");
             throw new NotFoundError("Категории ID: " + categoryId + ", не найдено!");
-        }
+        });
     }
 }

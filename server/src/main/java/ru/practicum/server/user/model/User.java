@@ -1,9 +1,7 @@
 package ru.practicum.server.user.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 
@@ -16,23 +14,24 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "users")
 public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Параметр имени пользователя
      * Не может быть пустым
      * */
     @Column(name = "name", nullable = false)
-    private String name;
+    String name;
 
     /**
      * Параметр адреса электронной почты
      * Не может быть пустым
      * */
     @Column(name = "email", nullable = false)
-    private String email;
+    String email;
 }

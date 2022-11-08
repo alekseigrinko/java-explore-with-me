@@ -1,9 +1,7 @@
 package ru.practicum.server.comment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.server.comment.model.Comment;
 import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.user.dto.UserShortDto;
@@ -16,10 +14,11 @@ import ru.practicum.server.user.dto.UserShortDto;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentRequestDto {
-    private Long id;
-    private EventShortDto event;
-    private UserShortDto author;
-    private String description;
-    private String created;
+    Long id;
+    EventShortDto event;
+    UserShortDto author;
+    String description;
+    String created;
 }

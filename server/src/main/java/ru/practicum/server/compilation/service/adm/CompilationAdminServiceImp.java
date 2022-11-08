@@ -1,6 +1,8 @@
 package ru.practicum.server.compilation.service.adm;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 
 import org.springframework.stereotype.Service;
@@ -32,49 +34,50 @@ import static ru.practicum.server.event.EventMapper.toEventShortDto;
  * */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CompilationAdminServiceImp implements CompilationAdminService {
 
     /**
      * Репозиторий событий
      * @see EventRepository
      * */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
     /**
      * Репозиторий подборок событий
      * @see CompilationRepository
      * */
-    private final CompilationRepository compilationRepository;
+    CompilationRepository compilationRepository;
 
     /**
      * Репозиторий подборок с привязкой к ID событий
      * @see EventCompilationRepository
      * */
-    private final EventCompilationRepository eventCompilationRepository;
+    EventCompilationRepository eventCompilationRepository;
 
     /**
      * Репозиторий категорий
      * @see CategoryRepository
      * */
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * Репозиторий пользователей
      * @see UserRepository
      * */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * Репозиторий запросов на участие в событиях
      * @see RequestRepository
      * */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * Клиент для взаимодействия с сервисом статистики
      * @see EventClient
      * */
-    private final EventClient eventClient;
+    EventClient eventClient;
 
     public CompilationAdminServiceImp(EventRepository eventRepository, CompilationRepository compilationRepository,
                                       EventCompilationRepository eventCompilationRepository, CategoryRepository categoryRepository,
@@ -193,8 +196,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
      * */
     @Override
     public CompilationDto unpinnedCompilation(long compilationId) {
-        checkCompilation(compilationId);
-        Compilation compilation = compilationRepository.findById(compilationId).get();
+        Compilation compilation = returnCompilationWithCheck(compilationId);
         compilation.setPinned(false);
         compilationRepository.save(compilation);
         log.debug("Откреплена от главной страницы подборка: " + compilation.getTitle());
@@ -217,8 +219,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
      * */
     @Override
     public CompilationDto pinnedCompilation(long compilationId) {
-        checkCompilation(compilationId);
-        Compilation compilation = compilationRepository.findById(compilationId).get();
+        Compilation compilation = returnCompilationWithCheck(compilationId);
         compilation.setPinned(true);
         compilationRepository.save(compilation);
         log.debug("Закреплена на главной страницы подборка: " + compilation.getTitle());
@@ -256,5 +257,17 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
             throw new NotFoundError("Подборки ID: " + compilationId + ", не найдено!");
         }
+    }
+
+    /**
+     * Метод проверки наличия подборки по ID в репозитории и его получения
+     * @return возвращает подборку по ID
+     * @throws NotFoundError - при отсутствии подборки по ID
+     * */
+    public Compilation returnCompilationWithCheck(long compilationId) {
+        return compilationRepository.findById(compilationId).orElseThrow(() -> {
+            log.warn("Подборки ID: " + compilationId + ", не найдено!");
+            throw new NotFoundError("Подборки ID: " + compilationId + ", не найдено!");
+        });
     }
 }

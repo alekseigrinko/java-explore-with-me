@@ -1,9 +1,7 @@
 package ru.practicum.server.comment.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.server.comment.model.Comment;
 import ru.practicum.server.event.dto.EventShortDto;
 import ru.practicum.server.user.dto.UserShortDto;
@@ -18,6 +16,7 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CommentEventRequestDto {
 
     private EventShortDto event;
@@ -31,8 +30,9 @@ public class CommentEventRequestDto {
     @Setter
     @AllArgsConstructor
     @NoArgsConstructor
+    @FieldDefaults(level = AccessLevel.PRIVATE)
     public static class CommentShortDto {
-        private String description;
-        private UserShortDto author;
+        String description;
+        UserShortDto author;
     }
 }

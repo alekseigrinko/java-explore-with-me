@@ -1,7 +1,9 @@
 package ru.practicum.server.event.service.publ;
 
 import com.querydsl.core.types.dsl.BooleanExpression;
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.lang.Nullable;
@@ -32,42 +34,49 @@ import static ru.practicum.server.event.EventMapper.toEventFullDto;
 
 /**
  * реализация публичного интерфейса по работе с данными событий
+ *
  * @see EventPublicService
- * */
+ */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventPublicServiceImp implements EventPublicService {
 
     /**
      * репозиторий событий
+     *
      * @see EventRepository
-     * */
-    private final EventRepository eventRepository;
+     */
+    EventRepository eventRepository;
 
     /**
      * репозиторий категорий
+     *
      * @see CategoryRepository
-     * */
-    private final CategoryRepository categoryRepository;
+     */
+    CategoryRepository categoryRepository;
 
     /**
      * репозиторий пользователей
+     *
      * @see UserRepository
-     * */
-    private final UserRepository userRepository;
+     */
+    UserRepository userRepository;
 
     /**
      * репозиторий запросов на участие в событиях
+     *
      * @see RequestRepository
-     * */
-    private final RequestRepository requestRepository;
+     */
+    RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
+     *
      * @see EventClient
-     * */
-    private final EventClient eventClient;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+     */
+    EventClient eventClient;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public EventPublicServiceImp(EventRepository eventRepository, CategoryRepository categoryRepository,
                                  UserRepository userRepository, RequestRepository requestRepository,
@@ -80,11 +89,11 @@ public class EventPublicServiceImp implements EventPublicService {
     }
 
     /**
-     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
-     * @param text - не должен быть null
+     * @param text       - не должен быть null
      * @param categories - не должен быть null
-     * @param sort - не должен быть null
-     * */
+     * @param sort       - не должен быть null
+     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
+     */
     @Override
     public List<EventFullDto> getAllEvents(@NotBlank String text, @NonNull List<Integer> categories, boolean paid, LocalDateTime rangeStart,
                                            LocalDateTime rangeEnd, boolean onlyAvailable, @NonNull SortEvent sort, PageRequest pageRequest) {
@@ -147,10 +156,11 @@ public class EventPublicServiceImp implements EventPublicService {
 
     /**
      * метод для определения фильтрации получения списка событий
-     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
+     *
      * @param text - не должен быть null
      * @param paid - не должен быть null
-     * */
+     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
+     */
     private BooleanExpression formatExpression(@NotBlank String text, List<Integer> categoriesList, @Nullable boolean paid, LocalDateTime rangeStart,
                                                LocalDateTime rangeEnd) {
         BooleanExpression result = QEvent.event.state.eq(State.PUBLISHED);
@@ -179,26 +189,18 @@ public class EventPublicServiceImp implements EventPublicService {
 
     /**
      * @see EventPublicService#getEvent(long)
-     * */
+     * @throws NotFoundError - при отсутствии события по ID
+     */
     @Override
     public EventFullDto getEvent(long eventId) {
-        checkEvent(eventId);
-        Event event = eventRepository.findById(eventId).get();
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> {
+            log.warn("Событие ID: " + eventId + ", не найдено!");
+            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
+        });
         User user = userRepository.findById(event.getInitiatorId()).get();
         Category category = categoryRepository.findById(event.getCategoryId()).get();
         log.debug("Предоставлены данные по событию ID: " + eventId);
         return toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(event.getId()));
-    }
-
-    /**
-     * метод проверки наличия события по ID в репозитории
-     * @throws NotFoundError - при отсутствии события по ID
-     * */
-    public void checkEvent(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
-        }
     }
 }

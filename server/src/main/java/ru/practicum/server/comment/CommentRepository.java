@@ -10,7 +10,6 @@ import java.util.List;
 
 /**
  * Интерфейс для работы с репозиторием комментариев пользователей
- *
  * @see Comment
  */
 public interface CommentRepository extends JpaRepository<Comment, Long> {

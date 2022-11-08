@@ -1,9 +1,7 @@
 package ru.practicum.server.compilation.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.server.event.dto.EventShortDto;
 
 import javax.validation.constraints.NotBlank;
@@ -19,17 +17,18 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class CompilationDto {
     @NotNull
-    private long id;
+    long id;
     @NotBlank
-    private String title;
+    String title;
     @NotNull
-    private boolean pinned;
+    boolean pinned;
     /**
      * Список DTO событий, полученных по привязке через репозиторий
      * @see ru.practicum.server.compilation.model.EventCompilation
      * @see EventShortDto
      * */
-    private List<EventShortDto> events;
+    List<EventShortDto> events;
 }

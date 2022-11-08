@@ -1,5 +1,6 @@
 package ru.practicum.server.category.controller;
 
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
 import org.springframework.web.bind.annotation.*;
@@ -13,6 +14,7 @@ import java.util.List;
  * */
 @RestController
 @RequestMapping(path = "categories")
+@Slf4j
 public class PublicCategoryController {
 
     /**
@@ -32,6 +34,7 @@ public class PublicCategoryController {
                                        @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("name").ascending());
+        log.debug("Получен запрос на получение списка действующих категорий");
         return categoryPublicService.getAllCategories(pageRequest);
     }
 
@@ -40,6 +43,7 @@ public class PublicCategoryController {
      * */
     @GetMapping("/{id}")
     CategoryDto getCategory(@PathVariable long id) {
+        log.debug("Получен запрос на получение данных категории по ID");
         return categoryPublicService.getCategory(id);
     }
 

@@ -1,5 +1,7 @@
 package ru.practicum.server.comment.service.adm;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
@@ -25,6 +27,7 @@ import static ru.practicum.server.event.EventMapper.toEventShortDto;
  */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommentAdminServiceImp implements CommentAdminService {
 
     /**
@@ -32,42 +35,42 @@ public class CommentAdminServiceImp implements CommentAdminService {
      *
      * @see EventRepository
      */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
     /**
      * репозиторий пользователей
      *
      * @see UserRepository
      */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * репозиторий категорий
      *
      * @see CategoryRepository
      */
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * репозиторий комментариев пользователей
      *
      * @see CommentRepository
      */
-    private final CommentRepository commentRepository;
+    CommentRepository commentRepository;
 
     /**
      * Репозиторий запросов на участие в событиях
      *
      * @see RequestRepository
      */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
      *
      * @see EventClient
      */
-    private final EventClient eventClient;
+    EventClient eventClient;
 
 
     public CommentAdminServiceImp(EventRepository eventRepository, UserRepository userRepository,

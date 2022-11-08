@@ -32,6 +32,7 @@ public class AdminUserController {
      * */
     @PostMapping
     UserDto createUser(@RequestBody NewUserRequestDto newUserRequestDto) {
+        log.debug("Получен запрос на добавление пользователя");
         return userAdminService.addUser(newUserRequestDto);
     }
 
@@ -44,6 +45,7 @@ public class AdminUserController {
                            @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("id").descending());
+        log.debug("Получен запрос на получение данных пользователей по списку ID, через параметр запроса");
         return userAdminService.getUsers(ids, pageRequest);
     }
 
@@ -52,6 +54,7 @@ public class AdminUserController {
      * */
     @DeleteMapping("/{userId}")
     UserDto deleteUser(@PathVariable long userId) {
+        log.debug("Получен запрос на удаление пользователя");
         return userAdminService.deleteUser(userId);
     }
 }

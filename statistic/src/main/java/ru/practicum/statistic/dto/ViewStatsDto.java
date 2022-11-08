@@ -1,9 +1,7 @@
 package ru.practicum.statistic.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 /**
  * DTO-класс для получения данных статистики
@@ -12,8 +10,9 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ViewStatsDto {
-    private String app;
-    private String uri;
-    private long hits;
+    String app;
+    String uri;
+    long hits;
 }

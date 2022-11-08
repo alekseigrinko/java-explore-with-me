@@ -30,6 +30,7 @@ public class PrivateRequestController {
     @PostMapping
     ParticipationRequestDto postRequest(@PathVariable long userId,
                                         @RequestParam long eventId) {
+        log.debug("Получен запрос на размещение данных нового запроса на участие в событии");
         return requestPrivateService.postRequest(userId, eventId);
     }
 
@@ -39,6 +40,7 @@ public class PrivateRequestController {
     @PatchMapping("/{requestId}/cancel")
     ParticipationRequestDto updateCategory(@PathVariable long userId,
                                            @PathVariable long requestId) {
+        log.debug("Получен запрос на отмену пользователем запроса на участие в событии");
         return requestPrivateService.canceledRequest(requestId, userId);
     }
 
@@ -47,6 +49,7 @@ public class PrivateRequestController {
      * */
     @GetMapping
     List<ParticipationRequestDto> getUserRequest(@PathVariable long userId) {
+        log.debug("Получен запрос на получение списка запросов пользователя по его ID на участие в событиях");
         return requestPrivateService.getAllUsersRequests(userId);
     }
 }

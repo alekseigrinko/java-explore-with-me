@@ -19,16 +19,18 @@ import static ru.practicum.server.user.UserMapper.toUserDto;
 
 /**
  * реализация интерфейса администратора по работе с данными пользователя
+ *
  * @see UserAdminService
- * */
+ */
 @Service
 @Slf4j
 public class UserAdminServiceImp implements UserAdminService {
 
     /**
      * репозиторий пользователей
+     *
      * @see UserRepository
-     * */
+     */
     private final UserRepository userRepository;
 
     public UserAdminServiceImp(UserRepository userRepository) {
@@ -36,9 +38,9 @@ public class UserAdminServiceImp implements UserAdminService {
     }
 
     /**
-     * @see UserAdminService#addUser(NewUserRequestDto)
      * @param newUserRequestDto - не должен быть null
-     * */
+     * @see UserAdminService#addUser(NewUserRequestDto)
+     */
     @Override
     public UserDto addUser(@NonNull NewUserRequestDto newUserRequestDto) {
         log.debug("Зарегистрирован пользователь " + newUserRequestDto.getName());
@@ -46,9 +48,9 @@ public class UserAdminServiceImp implements UserAdminService {
     }
 
     /**
-     * @see UserAdminService#getUsers(List, PageRequest)
      * @param ids - не должен быть null
-     * */
+     * @see UserAdminService#getUsers(List, PageRequest)
+     */
     @Override
     public List<UserDto> getUsers(@NonNull List<Integer> ids, PageRequest pageRequest) {
         List<UserDto> userDtoList = new ArrayList<>();
@@ -63,25 +65,17 @@ public class UserAdminServiceImp implements UserAdminService {
     }
 
     /**
+     * @throws NotFoundError - при отсутствии пользователя по ID
      * @see UserAdminService#deleteUser(long)
-     * */
+     */
     @Override
     public UserDto deleteUser(long userId) {
-        checkUser(userId);
-        UserDto userDto = toUserDto(userRepository.findById(userId).get());
+        UserDto userDto = toUserDto(userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("Пользователь ID: " + userId + ", не найден!");
+            throw new NotFoundError("Пользователь ID: " + userId + ", не найден!");
+        }));
         userRepository.deleteUser(userId);
         log.debug("Удален пользователь ID: " + userId);
         return userDto;
-    }
-
-    /**
-     * метод проверки наличия пользователя по ID в репозитории
-     * @throws NotFoundError - при отсутствии пользователя по ID
-     * */
-    public void checkUser(long userId) {
-        if (!userRepository.existsById(userId)) {
-            log.warn("Пользователь ID: " + userId + ", не найден!");
-            throw new NotFoundError("Пользователь ID: " + userId + ", не найден!");
-        }
     }
 }

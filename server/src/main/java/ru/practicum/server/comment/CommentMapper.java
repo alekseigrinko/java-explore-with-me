@@ -21,7 +21,6 @@ public class CommentMapper {
 
     /**
      * Метод конвертации данных нового комментария из DTO-класса в модель Comment
-     *
      * @see NewCommentDto
      */
     public static Comment toComment(NewCommentDto newCommentDto, long eventId, long authorId) {
@@ -37,7 +36,6 @@ public class CommentMapper {
     /**
      * Метод конвертации данных комментария из репозитория в DTO-класс.
      * Используется список DTO пользователя и события
-     *
      * @see EventShortDto
      * @see User
      * @see UserShortDto

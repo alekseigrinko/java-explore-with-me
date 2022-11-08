@@ -1,9 +1,7 @@
 package ru.practicum.server.compilation.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,28 +15,29 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "compilations")
 public class Compilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Параметр названия подборки
      * Не может быть пустым
      * */
     @Column(name = "title", nullable = false)
-    private String title;
+    String title;
 
     /**
      * Параметр, указывающий на размещение подборки на главной странице
      * Не может быть пустым
      * */
     @Column(name = "is_pinned", nullable = false)
-    private boolean pinned;
+    boolean pinned;
     /**
      * Параметр даты и времени создания подборки
      * */
     @Column(name = "created")
-    private LocalDateTime created;
+    LocalDateTime created;
 }

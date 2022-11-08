@@ -1,6 +1,8 @@
 package ru.practicum.server.event.service.pvt;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -34,38 +36,39 @@ import static ru.practicum.server.event.EventMapper.*;
  * */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventPrivateServiceImp implements EventPrivateService {
 
     /**
      * репозиторий событий
      * @see EventRepository
      * */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
     /**
      * репозиторий пользователей
      * @see UserRepository
      * */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * репозиторий категорий
      * @see CategoryRepository
      * */
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * репозиторий запросов на участие в событиях
      * @see RequestRepository
      * */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
      * @see EventClient
      * */
-    private final EventClient eventClient;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    EventClient eventClient;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public EventPrivateServiceImp(EventRepository eventRepository, UserRepository userRepository,
                                   CategoryRepository categoryRepository, RequestRepository requestRepository,
@@ -101,10 +104,8 @@ public class EventPrivateServiceImp implements EventPrivateService {
      * */
     @Override
     public EventFullDto getUserEventById(long userId, long eventId) {
-        checkUser(userId);
-        checkEvent(eventId);
-        Event event = eventRepository.findById(eventId).get();
-        User user = userRepository.findById(userId).get();
+        Event event = returnEventWithCheck(eventId);
+        User user = returnUserWithCheck(userId);
         Category category = categoryRepository.findById(event.getCategoryId()).get();
         log.debug("Данные предоставлены по событию ID: " + eventId);
         return toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
@@ -118,8 +119,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
     @Override
     public EventFullDto addEvent(long userId, @NonNull NewEventDto newEventDto) {
         checkCreationTime(newEventDto.getEventDate());
-        checkUser(userId);
-        User user = userRepository.findById(userId).get();
+        User user = returnUserWithCheck(userId);
         Category category = categoryRepository.findById(newEventDto.getCategory()).get();
         log.debug("Добавлено событие: " + newEventDto.getTitle());
         return toEventFullDto(eventRepository.save(toEvent(newEventDto, userId)), user, category,
@@ -132,9 +132,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
      * */
     @Override
     public EventFullDto updateEvent(long userId, @NonNull UpdateEventRequestDto updateEventRequestDto) {
-        checkUser(userId);
-        checkEvent(updateEventRequestDto.getEventId());
-        Event event = eventRepository.findById(updateEventRequestDto.getEventId()).get();
+        Event event = returnEventWithCheck(updateEventRequestDto.getEventId());
         if (updateEventRequestDto.getEventDate() != null) {
             checkCreationTime(updateEventRequestDto.getEventDate());
             event.setEventDate(LocalDateTime.parse(updateEventRequestDto.getEventDate(), formatter));
@@ -167,7 +165,7 @@ public class EventPrivateServiceImp implements EventPrivateService {
         }
         event.setPaid(updateEventRequestDto.isPaid());
         log.debug("Данные события обновлены: " + event);
-        User user = userRepository.findById(event.getInitiatorId()).get();
+        User user = returnUserWithCheck(event.getInitiatorId());
         Category category = categoryRepository.findById(event.getCategoryId()).get();
         return toEventFullDto(event, user, category, eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(updateEventRequestDto.getEventId()));
@@ -178,26 +176,13 @@ public class EventPrivateServiceImp implements EventPrivateService {
      * */
     @Override
     public EventFullDto cancelEvent(long userId, long eventId) {
-        checkUser(userId);
-        checkEvent(eventId);
-        Event event = eventRepository.findById(eventId).get();
+        Event event = returnEventWithCheck(eventId);
         event.setState(State.CANCELED);
         log.debug("Данные события обновлены: " + event);
-        User user = userRepository.findById(event.getInitiatorId()).get();
+        User user = returnUserWithCheck(event.getInitiatorId());
         Category category = categoryRepository.findById(event.getCategoryId()).get();
         return toEventFullDto(eventRepository.save(event), user, category, eventClient.getViews(event.getId()),
                 requestRepository.getEventParticipantLimit(eventId));
-    }
-
-    /**
-     * метод проверки наличия события по ID в репозитории
-     * @throws NotFoundError - при отсутствии события по ID
-     * */
-    public void checkEvent(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
-        }
     }
 
     /**
@@ -209,6 +194,30 @@ public class EventPrivateServiceImp implements EventPrivateService {
             log.warn("Пользователь ID: " + userId + ", не найден!");
             throw new NotFoundError("Пользователь ID: " + userId + ", не найден!");
         }
+    }
+
+    /**
+     * метод проверки наличия пользователя по ID в репозитории и его получение
+     * @return возвращает пользователя по ID
+     * @throws NotFoundError - при отсутствии пользователя по ID
+     * */
+    public User returnUserWithCheck(long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> {
+            log.warn("Пользователь ID: " + userId + ", не найден!");
+            throw new NotFoundError("Пользователь ID: " + userId + ", не найден!");
+        });
+    }
+
+    /**
+     * метод проверки наличия события по ID в репозитории и его получение
+     * @return возвращает событие по ID
+     * @throws NotFoundError - при отсутствии события по ID
+     * */
+    public Event returnEventWithCheck(long eventId) {
+        return eventRepository.findById(eventId).orElseThrow(() -> {
+            log.warn("Событие ID: " + eventId + ", не найдено!");
+            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
+        });
     }
 
     /**

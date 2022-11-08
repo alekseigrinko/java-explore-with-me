@@ -1,9 +1,7 @@
 package ru.practicum.server.request.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 /**
  * DTO-класс с данными заявки на участие в событии
@@ -13,10 +11,11 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class ParticipationRequestDto {
-    private String created;
-    private long event;
-    private Long id;
-    private long requester;
-    private String status;
+    String created;
+    long event;
+    Long id;
+    long requester;
+    String status;
 }

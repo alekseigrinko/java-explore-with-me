@@ -1,5 +1,7 @@
 package ru.practicum.server.event.controller;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -18,18 +20,19 @@ import java.util.List;
  * */
 @RestController
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(path = "users/{userId}/events")
 public class PrivateEventController {
 
     /**
      * @see RequestPrivateService - интерефейс методов пользователя по работе с запросами на участие в событиях
      * */
-    private final RequestPrivateService requestPrivateService;
+    RequestPrivateService requestPrivateService;
 
     /**
      * @see EventPrivateService - интерефейс методов пользователя по работе с событиями
      * */
-    private final EventPrivateService eventPrivateService;
+    EventPrivateService eventPrivateService;
 
     public PrivateEventController(RequestPrivateService requestPrivateService, EventPrivateService eventPrivateService) {
         this.requestPrivateService = requestPrivateService;
@@ -64,6 +67,7 @@ public class PrivateEventController {
     @GetMapping("/{eventId}")
     EventFullDto getUserEvents(@PathVariable long userId,
                                @PathVariable long eventId) {
+        log.debug("Получен запрос на получение данных события по его ID");
         return eventPrivateService.getUserEventById(userId, eventId);
     }
 
@@ -73,6 +77,7 @@ public class PrivateEventController {
     @PatchMapping("/{eventId}")
     EventFullDto canselEvent(@PathVariable long userId,
                              @PathVariable long eventId) {
+        log.debug("Получен запрос на отмену пользователем события");
         return eventPrivateService.cancelEvent(userId, eventId);
     }
 
@@ -81,7 +86,8 @@ public class PrivateEventController {
      * */
     @PatchMapping
     EventFullDto updateEvent(@PathVariable long userId, @RequestBody UpdateEventRequestDto updateEventRequestDto) {
-       return eventPrivateService.updateEvent(userId, updateEventRequestDto);
+        log.debug("Получен запрос на обновление пользователем события");
+        return eventPrivateService.updateEvent(userId, updateEventRequestDto);
     }
 
     /**
@@ -90,6 +96,7 @@ public class PrivateEventController {
     @GetMapping("/{eventId}/requests")
     List<ParticipationRequestDto> getRequestsForEventByUser(@PathVariable long userId,
                                                             @PathVariable long eventId) {
+        log.debug("Получен запрос на получение данных запросов на участие в событии по его ID");
         return requestPrivateService.getRequestsForEventByUser(userId, eventId);
     }
 
@@ -98,6 +105,7 @@ public class PrivateEventController {
      * */
     @PatchMapping("/{eventId}/requests/{reqId}/confirm")
     ParticipationRequestDto confirmRequest(@PathVariable long userId, @PathVariable long eventId, @PathVariable long reqId) {
+        log.debug("Получен запрос на подтверждение запроса на участие в событии");
         return requestPrivateService.confirmRequest(userId, eventId, reqId);
     }
 
@@ -106,6 +114,7 @@ public class PrivateEventController {
      * */
     @PatchMapping("/{eventId}/requests/{reqId}/reject")
     ParticipationRequestDto rejectRequest(@PathVariable long userId, @PathVariable long eventId, @PathVariable long reqId) {
+        log.debug("Получен запрос на отклонение запроса на участие в событии");
         return requestPrivateService.rejectRequest(userId, eventId, reqId);
     }
 }

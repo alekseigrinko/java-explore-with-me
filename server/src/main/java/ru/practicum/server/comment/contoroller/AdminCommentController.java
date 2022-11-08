@@ -27,6 +27,7 @@ public class AdminCommentController {
      * */
     @DeleteMapping("/{commentId}")
     public CommentRequestDto deleteComment(@PathVariable long commentId) {
+        log.debug("Направление запроса на удаление комментария");
         return commentAdminService.deleteComment(commentId);
     }
 }

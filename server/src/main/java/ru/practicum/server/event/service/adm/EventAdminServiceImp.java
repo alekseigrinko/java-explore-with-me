@@ -1,6 +1,8 @@
 package ru.practicum.server.event.service.adm;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,38 +33,39 @@ import static ru.practicum.server.event.EventMapper.toEventFullDto;
  * */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class EventAdminServiceImp implements EventAdminService {
 
     /**
      * репозиторий событий
      * @see EventRepository
      * */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
     /**
      * репозиторий пользователей
      * @see UserRepository
      * */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * репозиторий категорий
      * @see CategoryRepository
      * */
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * репозиторий запросов на участие в событиях
      * @see RequestRepository
      * */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
      * @see EventClient
      * */
-    private final EventClient eventClient;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    EventClient eventClient;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
 
     public EventAdminServiceImp(EventRepository eventRepository, UserRepository userRepository,

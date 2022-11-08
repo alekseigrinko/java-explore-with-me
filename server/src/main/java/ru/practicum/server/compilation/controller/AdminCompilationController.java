@@ -28,6 +28,7 @@ public class AdminCompilationController {
      * */
     @PostMapping
     CompilationDto postCompilation(@RequestBody NewCompilationDto newCompilationDto) {
+        log.debug("Получен запрос на создание подборки");
         return compilationAdminService.postCompilation(newCompilationDto);
     }
 
@@ -36,6 +37,7 @@ public class AdminCompilationController {
      * */
     @DeleteMapping("/{compId}")
     CompilationDto deleteCompilation(@PathVariable long compId) {
+        log.debug("Получен запрос на удаление подборки");
         return compilationAdminService.deleteCompilation(compId);
     }
 
@@ -45,6 +47,7 @@ public class AdminCompilationController {
     @DeleteMapping("/{compId}/events/{eventId}")
     CompilationDto deleteEventFromCompilation(@PathVariable long compId,
                                               @PathVariable long eventId) {
+        log.debug("Получен запрос на удаление события по ID из подборки");
         return compilationAdminService.deleteEventFromCompilation(compId, eventId);
     }
 
@@ -54,6 +57,7 @@ public class AdminCompilationController {
     @PatchMapping("/{compId}/events/{eventId}")
     CompilationDto putEventFromCompilation(@PathVariable long compId,
                                            @PathVariable long eventId) {
+        log.debug("Получен запрос на добавление события в подборку");
         return compilationAdminService.putEventToCompilation(compId, eventId);
     }
 
@@ -62,6 +66,7 @@ public class AdminCompilationController {
      * */
     @DeleteMapping("/{compId}/pin")
     CompilationDto unpinnedCompilation(@PathVariable long compId) {
+        log.debug("Получен запрос на открепление подборки от главной страницы");
         return compilationAdminService.unpinnedCompilation(compId);
     }
 
@@ -70,6 +75,7 @@ public class AdminCompilationController {
      * */
     @PatchMapping("/{compId}/pin")
     CompilationDto pinnedCompilation(@PathVariable long compId) {
+        log.debug("Получен запрос на закрепление подборки на главной странице");
         return compilationAdminService.pinnedCompilation(compId);
     }
 }

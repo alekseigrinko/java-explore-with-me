@@ -1,5 +1,7 @@
 package ru.practicum.server.request.service;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.event.EventRepository;
@@ -29,27 +31,28 @@ import static ru.practicum.server.request.RequestMapper.toParticipationRequestDt
  * */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class RequestPrivateServiceImp implements RequestPrivateService {
 
     /**
      * репозиторий пользователей
      * @see UserRepository
      * */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * репозиторий запросов на участие в событиях
      * @see RequestRepository
      * */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * репозиторий событий
      * @see EventRepository
      * */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public RequestPrivateServiceImp(UserRepository userRepository, RequestRepository requestRepository, EventRepository eventRepository) {
         this.userRepository = userRepository;
@@ -81,8 +84,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     @Override
     public ParticipationRequestDto canceledRequest(long requestId, long userId) {
         checkUser(userId);
-        checkRequest(requestId);
-        Request request = requestRepository.findById(requestId).get();
+        Request request = returnRequestWithCheck(requestId);
         if (request.getStatus() == Status.CONFIRMED) {
             Event event = eventRepository.findById(request.getEvent()).get();
             event.setLimit(false);
@@ -131,8 +133,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     public ParticipationRequestDto confirmRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
         checkEvent(eventId);
-        checkRequest(requestId);
-        Request request = requestRepository.findById(requestId).get();
+        Request request = returnRequestWithCheck(requestId);
         request.setStatus(Status.CONFIRMED);
         log.debug("Подтвержден запрос ID: " + requestId);
         Event event = eventRepository.findById(eventId).get();
@@ -147,8 +148,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     public ParticipationRequestDto rejectRequest(long userId, long eventId, long requestId) {
         checkUser(userId);
         checkEvent(eventId);
-        checkRequest(requestId);
-        Request request = requestRepository.findById(requestId).get();
+        Request request = returnRequestWithCheck(requestId);
         if (request.getStatus() == Status.CONFIRMED) {
             Event event = eventRepository.findById(eventId).get();
             event.setLimit(false);
@@ -170,14 +170,15 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
     }
 
     /**
-     * метод проверки наличия запроса на участие в событии по ID в репозитории
+     * метод проверки наличия запроса на участие в событии по ID в репозитории и его возвращении
+     * @return запрос на участие в событии по ID
      * @throws NotFoundError - при отсутствии запроса по ID
      * */
-    public void checkRequest(long requestId) {
-        if (!requestRepository.existsById(requestId)) {
+    public Request returnRequestWithCheck(long requestId) {
+        return requestRepository.findById(requestId).orElseThrow(() -> {
             log.warn("Запрос ID: " + requestId + ", не найден!");
             throw new NotFoundError("Запрос ID: " + requestId + ", не найден!");
-        }
+        });
     }
 
     /**

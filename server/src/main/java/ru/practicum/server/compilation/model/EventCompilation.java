@@ -1,9 +1,7 @@
 package ru.practicum.server.compilation.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 
@@ -16,22 +14,23 @@ import javax.persistence.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "event_compilations")
 public class EventCompilation {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
     /**
      * ID события
      * Не может быть пустым
      * */
     @Column(name = "event_id", nullable = false)
-    private long eventId;
+    long eventId;
 
     /**
      * ID подборки
      * Не может быть пустым
      * */
     @Column(name = "compilation_id", nullable = false)
-    private long compilationId;
+    long compilationId;
 }

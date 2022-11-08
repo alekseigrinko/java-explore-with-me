@@ -1,5 +1,7 @@
 package ru.practicum.server.event.controller;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Sort;
@@ -17,14 +19,15 @@ import java.util.List;
  * */
 @RestController
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(path = "admin/events")
 public class AdminEventController {
 
     /**
      * @see EventAdminService - интерефейс методов администратора
      * */
-    private final EventAdminService eventAdminService;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    EventAdminService eventAdminService;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public AdminEventController(EventAdminService eventAdminService) {
         this.eventAdminService = eventAdminService;
@@ -46,6 +49,7 @@ public class AdminEventController {
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("eventDate").descending());
         LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
         LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
+        log.debug("Получен запрос на получение списка событий по заданным параметрам");
         return eventAdminService.getAllEvents(states, categories, users, start, end, pageRequest);
     }
 
@@ -55,6 +59,7 @@ public class AdminEventController {
     @PutMapping("/{eventId}")
     EventFullDto updateEvent(@PathVariable long eventId,
                              @RequestBody AdminUpdateEventRequestDto adminUpdateEventRequestDto) {
+        log.debug("Получен запрос на обновление данных события");
         return eventAdminService.updateEvent(eventId, adminUpdateEventRequestDto);
     }
 
@@ -63,6 +68,7 @@ public class AdminEventController {
      * */
     @PatchMapping("/{eventId}/publish")
     EventFullDto publishEvent(@PathVariable long eventId) {
+        log.debug("Получен запрос на публикацию события");
         return eventAdminService.publishEvent(eventId);
     }
 
@@ -71,6 +77,7 @@ public class AdminEventController {
      * */
     @PatchMapping("/{eventId}/reject")
     EventFullDto rejectEvent(@PathVariable long eventId) {
+        log.debug("Получен запрос на отмену публикации события");
         return eventAdminService.rejectEvent(eventId);
     }
 }

@@ -1,5 +1,8 @@
 package ru.practicum.server.event.controller;
 
+import lombok.AccessLevel;
+import lombok.experimental.FieldDefaults;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.event.client.EventClient;
@@ -17,20 +20,22 @@ import java.util.List;
  * Публичный контроллер для работы с данными событий
  * */
 @RestController
+@Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 @RequestMapping(path = "events")
 public class PublicEventController {
 
     /**
      * @see EventPublicService - интерефейс публичных методов
      * */
-    private final EventPublicService eventPublicService;
+    EventPublicService eventPublicService;
 
     /**
      * Клиент для взаимодействия с сервисом статистики
      * @see EventClient
      * */
-    private final EventClient eventClient;
-    private final DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
+    EventClient eventClient;
+    DateTimeFormatter formatter = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss");
 
     public PublicEventController(EventPublicService eventPublicService, EventClient eventClient) {
         this.eventPublicService = eventPublicService;
@@ -60,6 +65,7 @@ public class PublicEventController {
                 request.getRemoteAddr(), LocalDateTime.now().format(formatter)));
         LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
         LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
+        log.debug("Получен запрос на получение списка событий по заданным параметрам");
         return eventPublicService.getAllEvents(text, categories, paid, start, end, onlyAvailable, sort, pageRequest);
     }
 
@@ -72,6 +78,7 @@ public class PublicEventController {
     public EventFullDto getEvent(@PathVariable long id, HttpServletRequest request) {
         eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
                 request.getRemoteAddr(), LocalDateTime.now().format(formatter)));
+        log.debug("Получен запрос на получение данных события по его ID");
         return eventPublicService.getEvent(id);
     }
 }

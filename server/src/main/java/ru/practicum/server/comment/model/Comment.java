@@ -1,9 +1,7 @@
 package ru.practicum.server.comment.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,38 +15,37 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "comments")
 public class Comment {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Параметр ID события, по которому дается комментарий.
      * Не может быть пустым
      * */
     @Column(name = "event_id", nullable = false)
-    private long event;
+    long event;
 
     /**
      * Параметр ID пользователя, разместившего комментарий.
      * Не может быть пустым
      * */
     @Column(name = "author_id", nullable = false)
-    private long author;
+    long author;
 
     /**
      * Содержание комментария
      * */
     @Column(name = "description")
-    private String description;
+    String description;
 
     /**
      * Дата создания комментария.
      * Не может быть пустым
      * */
     @Column(name = "created", nullable = false)
-    private LocalDateTime created;
-
-
+    LocalDateTime created;
 }

@@ -1,9 +1,7 @@
 package ru.practicum.server.event.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,25 +15,26 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "events")
 public class Event {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Параметр названия события
      * Не может быть пустым
      * */
     @Column(name = "title", nullable = false)
-    private String title;
+    String title;
 
     /**
      * Параметр описание события
      * Не может быть пустым
      * */
     @Column(name = "description", nullable = false)
-    private String description;
+    String description;
 
 
     /**
@@ -43,7 +42,7 @@ public class Event {
      * Не может быть пустым
      * */
     @Column(name = "annotation", nullable = false)
-    private String annotation;
+    String annotation;
 
     /**
      * Параметр статуса события
@@ -51,77 +50,77 @@ public class Event {
      * */
     @Column(name = "state")
     @Enumerated(EnumType.STRING)
-    private State state;
+    State state;
 
     /**
      * Параметр ID инициатора события
      * Не может быть пустым
      * */
     @Column(name = "initiator_id", nullable = false)
-    private long initiatorId;
+    long initiatorId;
 
     /**
      * Параметр ID категории события
      * Не может быть пустым
      * */
     @Column(name = "category_id")
-    private long categoryId;
+    long categoryId;
 
     /**
      * Параметр, обозначающий платность события
      * */
     @Column(name = "is_paid")
-    private boolean paid;
+    boolean paid;
 
     /**
      * Параметр, обозначающий доступность модерации события
      * */
     @Column(name = "is_request_moderation")
-    private boolean requestModeration;
+    boolean requestModeration;
 
     /**
      * Дата создания события
      * */
     @Column(name = "created")
-    private LocalDateTime createdOn;
+    LocalDateTime createdOn;
 
     /**
      * Дата публикация события
      * */
     @Column(name = "published_date")
-    private LocalDateTime publishedOn;
+    LocalDateTime publishedOn;
 
     /**
      * Дата начала события
      * Не может быть пустым
      * */
     @Column(name = "event_date", nullable = false)
-    private LocalDateTime eventDate;
+    LocalDateTime eventDate;
 
     /**
      * Параметр ширины координат локации проведения события
      * Не может быть пустым
      * */
     @Column(name = "lat_location", nullable = false)
-    private float latLocation;
+    float latLocation;
 
     /**
      * Параметр долготы координат локации проведения события
      * Не может быть пустым
      * */
     @Column(name = "lon_location", nullable = false)
-    private float lonLocation;
+    float lonLocation;
 
     /**
      * Параметр лимита участников события
      * */
     @Column(name = "participant_limit")
-    private long participantLimit;
+    long participantLimit;
 
     /**
      * Параметр достижения лимита участников события
      * */
     @Column(name = "is_participant_limit")
-    private boolean isLimit;
+    boolean isLimit;
 
 }

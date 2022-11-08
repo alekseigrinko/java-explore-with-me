@@ -1,9 +1,7 @@
 package ru.practicum.server.event.dto;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 import ru.practicum.server.event.model.SortEvent;
 
 import javax.servlet.http.HttpServletRequest;
@@ -18,26 +16,27 @@ import java.util.List;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 public class HitDto {
-    private Long id;
+    Long id;
 
     /**
      * Название приложения, через который был получен запрос
      * */
-    private String app;
+    String app;
 
     /**
      * URI запроса
      * */
-    private String uri;
+    String uri;
 
     /**
      * IP-адрес, с которого поступил запрос
      * */
-    private String ip;
+    String ip;
 
     /**
      * Время запроса
      * */
-    private String timestamp;
+    String timestamp;
 }

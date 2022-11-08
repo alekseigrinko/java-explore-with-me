@@ -1,9 +1,7 @@
 package ru.practicum.server.request.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,37 +15,38 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "requests")
 public class Request {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Параметр ID пользователя, разместившего запрос на участие в событии
      * Не может быть пустым
      * */
     @Column(name = "requester_id", nullable = false)
-    private long requester;
+    long requester;
 
     /**
      * Параметр ID события
      * Не может быть пустым
      * */
     @Column(name = "event_id", nullable = false)
-    private long event;
+    long event;
 
     /**
      * Дата создания запроса
      * Не может быть пустым
      * */
     @Column(name = "created", nullable = false)
-    private LocalDateTime created;
+    LocalDateTime created;
 
     /**
      * Статус запроса на участие в событии
      * */
     @Column(name = "status")
     @Enumerated(EnumType.STRING)
-    private Status status;
+    Status status;
 }

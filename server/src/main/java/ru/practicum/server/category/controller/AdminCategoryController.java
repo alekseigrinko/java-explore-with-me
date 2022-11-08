@@ -28,6 +28,7 @@ public class AdminCategoryController {
      * */
     @PostMapping
     CategoryDto createCategory(@RequestBody NewCategoryDto newCategoryDto) {
+        log.debug("Получен запрос на удаление категории");
         return categoryAdminService.addCategory(newCategoryDto);
     }
 
@@ -45,6 +46,7 @@ public class AdminCategoryController {
      * */
     @DeleteMapping("/{id}")
     CategoryDto deleteCategory(@PathVariable long id) {
+        log.debug("Получен запрос на удаление категории");
         return categoryAdminService.deleteCategory(id);
     }
 

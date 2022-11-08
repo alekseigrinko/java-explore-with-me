@@ -1,9 +1,7 @@
 package ru.practicum.statistic.model;
 
-import lombok.AllArgsConstructor;
-import lombok.Getter;
-import lombok.NoArgsConstructor;
-import lombok.Setter;
+import lombok.*;
+import lombok.experimental.FieldDefaults;
 
 import javax.persistence.*;
 import java.time.LocalDateTime;
@@ -17,36 +15,37 @@ import java.time.LocalDateTime;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
+@FieldDefaults(level = AccessLevel.PRIVATE)
 @Table(name = "hits")
 public class Hit {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Long id;
+    Long id;
 
     /**
      * Название приложения, через который был получен запрос
      * Не может быть пустым
      * */
     @Column(name = "app", nullable = false)
-    private String app;
+    String app;
 
     /**
      * URI запроса
      * Не может быть пустым
      * */
     @Column(name = "uri", nullable = false)
-    private String uri;
+    String uri;
 
     /**
      * IP-адрес, с которого поступил запрос
      * Не может быть пустым
      * */
     @Column(name = "ip", nullable = false)
-    private String ip;
+    String ip;
 
     /**
      * Время и дата запроса
      * */
     @Column(name = "timestamp")
-    private LocalDateTime timestamp;
+    LocalDateTime timestamp;
 }

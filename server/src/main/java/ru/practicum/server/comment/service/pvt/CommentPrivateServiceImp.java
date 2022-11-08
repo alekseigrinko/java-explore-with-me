@@ -1,6 +1,8 @@
 package ru.practicum.server.comment.service.pvt;
 
+import lombok.AccessLevel;
 import lombok.NonNull;
+import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
@@ -31,54 +33,48 @@ import static ru.practicum.server.event.EventMapper.toEventShortDto;
 
 /**
  * реализация публичного интерфейса по работе с данными комментариев пользвоателей
- *
  * @see CommentPrivateService
  */
 @Service
 @Slf4j
+@FieldDefaults(level = AccessLevel.PRIVATE, makeFinal = true)
 public class CommentPrivateServiceImp implements CommentPrivateService {
 
     /**
      * репозиторий событий
-     *
      * @see EventRepository
      */
-    private final EventRepository eventRepository;
+    EventRepository eventRepository;
 
     /**
      * репозиторий пользователей
-     *
      * @see UserRepository
      */
-    private final UserRepository userRepository;
+    UserRepository userRepository;
 
     /**
      * репозиторий категорий
-     *
      * @see CategoryRepository
      */
-    private final CategoryRepository categoryRepository;
+    CategoryRepository categoryRepository;
 
     /**
      * репозиторий комментариев пользователей
-     *
      * @see CommentRepository
      */
-    private final CommentRepository commentRepository;
+    CommentRepository commentRepository;
 
     /**
      * Репозиторий запросов на участие в событиях
-     *
      * @see RequestRepository
      */
-    private final RequestRepository requestRepository;
+    RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
-     *
      * @see EventClient
      */
-    private final EventClient eventClient;
+    EventClient eventClient;
 
     public CommentPrivateServiceImp(EventRepository eventRepository, UserRepository userRepository,
                                     CategoryRepository categoryRepository, CommentRepository commentRepository,
@@ -110,9 +106,8 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
      */
     @Override
     public CommentRequestDto updateComment(@NonNull NewCommentDto newCommentDto, long commentId, long authorId) {
-        checkComment(commentId);
         checkUser(authorId);
-        Comment oldComment = commentRepository.findById(commentId).get();
+        Comment oldComment = returnCommentWithCheck(commentId);
         oldComment.setDescription(newCommentDto.getDescription());
         Comment comment = commentRepository.save(oldComment);
         log.debug("Обновлен комментарий ID: " + commentId);
@@ -120,13 +115,12 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
     }
 
     /**
-     * @see CommentPrivateService#getCommentById(long, long)
      * @throws BadRequestError - не соответствие пользователя запроса с автором комментария
+     * @see CommentPrivateService#getCommentById(long, long)
      */
     @Override
     public CommentRequestDto getCommentById(long commentId, long authorId) {
-        checkComment(commentId);
-        Comment comment = commentRepository.findById(commentId).get();
+        Comment comment = returnCommentWithCheck(commentId);
         if (comment.getAuthor() != authorId) {
             log.warn("Пользователь не является автором комментария");
             throw new BadRequestError("Пользователь не является автором комментария");
@@ -149,7 +143,6 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
 
     /**
      * метод проверки наличия события по ID в репозитории
-     *
      * @throws NotFoundError - при отсутствии события по ID
      */
     private void checkEvent(long eventId) {
@@ -161,7 +154,6 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
 
     /**
      * метод проверки наличия пользователя по ID в репозитории
-     *
      * @throws NotFoundError - при отсутствии пользователя по ID
      */
     private void checkUser(long userId) {
@@ -172,25 +164,27 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
     }
 
     /**
-     * метод проверки наличия комментария по ID в репозитории
-     *
+     * метод проверки наличия комментария по ID в репозитории и его получения
+     * @return комментарий из репозитория по ID
      * @throws NotFoundError - при отсутствии комментария по ID
      */
-    private void checkComment(long commentId) {
-        if (!commentRepository.existsById(commentId)) {
+    private Comment returnCommentWithCheck(long commentId) {
+        return commentRepository.findById(commentId).orElseThrow(() -> {
             log.warn("Комментария ID: " + commentId + ", не найдено!");
             throw new NotFoundError("Комментария ID: " + commentId + ", не найдено!");
-        }
+        });
     }
 
     /**
      * метод проверки комментария до его размещения
+     * @throws NotFoundError - при отсутствии пользователя по ID
      * @throws BadRequestError - событие не опубликовано, запрос автора на участие не подтвержден, автор является инициатором события
      */
     private void checkBeforePostComment(long eventId, long authorId) {
-        checkEvent(eventId);
-        checkUser(authorId);
-        Event event = eventRepository.findById(eventId).get();
+        Event event = eventRepository.findById(eventId).orElseThrow(() -> {
+            log.warn("Пользователь ID: " + authorId + ", не найден!");
+            throw new NotFoundError("Пользователь ID: " + authorId + ", не найден!");
+        });
         if (event.getState() != State.PUBLISHED) {
             log.warn("Событие еще не опубликовано");
             throw new BadRequestError("Событие еще не опубликовано");
@@ -207,6 +201,7 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
 
     /**
      * метод конвертации данных в DTO комментария
+     *
      * @see CommentRequestDto
      * @see ru.practicum.server.comment.CommentMapper#toCommentRequestDto(Comment, EventShortDto, User)
      */

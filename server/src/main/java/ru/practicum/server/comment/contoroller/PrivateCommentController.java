@@ -34,6 +34,7 @@ public class PrivateCommentController {
     CommentRequestDto postComment(@PathVariable long eventId,
                                   @PathVariable long userId,
                                   @RequestBody NewCommentDto newCommentDto) {
+        log.debug("Направление запроса на размещение комментария");
         return commentPrivateService.postComment(newCommentDto, eventId, userId);
     }
 
@@ -44,6 +45,7 @@ public class PrivateCommentController {
     CommentRequestDto updateComment(@PathVariable long userId,
                                     @PathVariable long commentId,
                                     @RequestBody NewCommentDto newCommentDto) {
+        log.debug("Направление запроса на обновление комментария");
         return commentPrivateService.updateComment(newCommentDto, commentId, userId);
     }
 
@@ -53,6 +55,7 @@ public class PrivateCommentController {
     @GetMapping("/{commentId}")
     CommentRequestDto getCommentById(@PathVariable long userId,
                                      @PathVariable long commentId) {
+        log.debug("Направление запроса на получение комментария пользователя по ID");
         return commentPrivateService.getCommentById(commentId, userId);
     }
 
@@ -65,6 +68,7 @@ public class PrivateCommentController {
                                                @RequestParam(value = "size", defaultValue = "10") int size) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size, Sort.by("created").descending());
+        log.debug("Направление запроса на получение списка комментариев пользователя к событиям");
         return commentPrivateService.getAllUserComments(userId, pageRequest);
     }
 }
