@@ -8,6 +8,7 @@ import ru.practicum.server.user.dto.NewUserRequestDto;
 import ru.practicum.server.user.dto.UserDto;
 import ru.practicum.server.user.service.UserAdminService;
 
+import javax.validation.Valid;
 import java.util.List;
 
 /**
@@ -31,7 +32,7 @@ public class AdminUserController {
      * Создание данных пользователя
      * */
     @PostMapping
-    UserDto createUser(@RequestBody NewUserRequestDto newUserRequestDto) {
+    UserDto createUser(@RequestBody @Valid NewUserRequestDto newUserRequestDto) {
         log.debug("Получен запрос на добавление пользователя");
         return userAdminService.addUser(newUserRequestDto);
     }

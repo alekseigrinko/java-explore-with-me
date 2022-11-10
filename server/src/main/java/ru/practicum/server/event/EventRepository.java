@@ -43,4 +43,20 @@ public interface EventRepository extends JpaRepository<Event, Long>, QuerydslPre
             "and e.eventDate < ?5 ")
     Page<Event> getEventsForAdmin(String state, long category, long user, LocalDateTime rangeStart,
                                    LocalDateTime rangeEnd, PageRequest pageRequest);
+
+    /**
+     * Метод получения всех событий по заданным параметрам
+     * @param category - ID категории
+     * @param user - ID пользователя
+     * @param rangeStart - дата начала периода поиска по дате начала события
+     * @param rangeEnd - дата окончания периода поиска по дате начала события
+     * @return возвращает страницу событий по заданным параметрам
+     * @see Event
+     * */
+        @Query(" select e from Event e where e.categoryId = ?1 " +
+            "and e.initiatorId = ?2 " +
+            "and e.eventDate > ?3 " +
+            "and e.eventDate < ?4 ")
+    Page<Event> getEventsForAdminWithoutState(long category, long user, LocalDateTime rangeStart,
+                                  LocalDateTime rangeEnd, PageRequest pageRequest);
 }

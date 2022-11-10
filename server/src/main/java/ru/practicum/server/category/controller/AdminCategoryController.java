@@ -6,6 +6,9 @@ import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.service.adm.CategoryAdminService;
 
+import javax.validation.Valid;
+
+
 /**
  * Контроллер администратора для работы с данными категорий
  * */
@@ -27,7 +30,7 @@ public class AdminCategoryController {
      * Создание данных новой категории
      * */
     @PostMapping
-    CategoryDto createCategory(@RequestBody NewCategoryDto newCategoryDto) {
+    CategoryDto createCategory(@Valid @RequestBody NewCategoryDto newCategoryDto) {
         log.debug("Получен запрос на удаление категории");
         return categoryAdminService.addCategory(newCategoryDto);
     }
@@ -36,7 +39,7 @@ public class AdminCategoryController {
      * Обновление данных пользователя
      * */
     @PatchMapping
-    CategoryDto updateCategory(@RequestBody CategoryDto categoryDto) {
+    CategoryDto updateCategory(@Valid @RequestBody CategoryDto categoryDto) {
         log.debug("Переданы данные для регистрации категории");
         return categoryAdminService.updateCategory(categoryDto);
     }

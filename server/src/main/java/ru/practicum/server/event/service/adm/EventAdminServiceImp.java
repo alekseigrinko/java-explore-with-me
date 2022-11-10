@@ -1,5 +1,6 @@
 package ru.practicum.server.event.service.adm;
 
+import com.querydsl.core.types.dsl.BooleanExpression;
 import lombok.AccessLevel;
 import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
@@ -12,8 +13,8 @@ import ru.practicum.server.event.client.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.AdminUpdateEventRequestDto;
 import ru.practicum.server.event.dto.EventFullDto;
-import ru.practicum.server.event.model.Event;
-import ru.practicum.server.event.model.State;
+import ru.practicum.server.event.model.*;
+import ru.practicum.server.event.service.publ.EventPublicService;
 import ru.practicum.server.exeption.BadRequestError;
 import ru.practicum.server.exeption.NotFoundError;
 import ru.practicum.server.request.RequestRepository;
@@ -79,23 +80,15 @@ public class EventAdminServiceImp implements EventAdminService {
     }
 
     /**
-     * @see EventAdminService#getAllEvents(List, List, List, LocalDateTime, LocalDateTime, PageRequest)
-     * @param states - не должен быть null
-     * @param categories - не должен быть null
-     * @param users - не должен быть null
+     * @see EventAdminService#getAllEvents(AdminEventFilter, PageRequest)
+     * @param adminEventFilter - набор параметров запроса
+     * @see AdminEventFilter
      * */
     @Override
-    public List<EventFullDto> getAllEvents(@NonNull List<String> states, @NonNull List<Integer> categories, @NonNull List<Integer> users, LocalDateTime rangeStart,
-                                           LocalDateTime rangeEnd, PageRequest pageRequest) {
-        List<Event> events = new ArrayList<>();
-        for (String state : states) {
-            for (Integer categoryId : categories) {
-                for (Integer userId : users) {
-                    events.addAll(eventRepository.getEventsForAdmin(state, categoryId.longValue(), userId.longValue(), rangeStart,
-                            rangeEnd, pageRequest).toList());
-                }
-            }
-        }
+    public List<EventFullDto> getAllEvents(AdminEventFilter adminEventFilter, PageRequest pageRequest) {
+
+        Iterable<Event> events = eventRepository.findAll(formatExpression(adminEventFilter), pageRequest);
+
         List<EventFullDto> eventFullDtos = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();
@@ -105,6 +98,48 @@ public class EventAdminServiceImp implements EventAdminService {
         }
         log.debug("Предоставлены данные по событиям");
         return eventFullDtos;
+    }
+
+    /**
+     * метод для определения фильтрации получения списка событий
+     *
+     * @param adminEventFilter - параметры запроса
+     * @see EventPublicService#getAllEvents(PublicEventFilter, boolean, SortEvent, PageRequest)
+     */
+    private BooleanExpression formatExpression(AdminEventFilter adminEventFilter) {
+        BooleanExpression result = null;
+        if (adminEventFilter.getUsers() != null) {
+            List<Integer> users = new ArrayList<>();
+            for (Integer i : adminEventFilter.getUsers()) {
+                users.add(i);
+            }
+            result = QEvent.event.initiatorId.intValue().in(users);
+        }
+        if (adminEventFilter.getStates() != null) {
+            List<State> states = new ArrayList<>();
+            for (String state : adminEventFilter.getStates()) {
+                states.add(State.valueOf(state));
+            }
+            result = (result == null) ? QEvent.event.state.in(states)
+                    : result.and(QEvent.event.state.in(states));
+        }
+        if (adminEventFilter.getCategories() != null) {
+            List<Integer> categories = new ArrayList<>();
+            for (Integer i : adminEventFilter.getCategories()) {
+                categories.add(i);
+            }
+            result = (result == null) ? QEvent.event.categoryId.intValue().in(categories)
+                    : result.and(QEvent.event.categoryId.intValue().in(categories));
+        }
+        if (adminEventFilter.getRangeStart() != null) {
+            result = (result == null) ? QEvent.event.eventDate.after(LocalDateTime.parse(adminEventFilter.getRangeStart(), formatter))
+                    : result.and(QEvent.event.eventDate.after(LocalDateTime.parse(adminEventFilter.getRangeStart(), formatter)));
+        }
+        if (adminEventFilter.getRangeEnd() != null) {
+            result = (result == null) ? QEvent.event.eventDate.before(LocalDateTime.parse(adminEventFilter.getRangeEnd(), formatter))
+                    : result.and(QEvent.event.eventDate.after(LocalDateTime.parse(adminEventFilter.getRangeStart(), formatter)));
+        }
+        return result;
     }
 
     /**

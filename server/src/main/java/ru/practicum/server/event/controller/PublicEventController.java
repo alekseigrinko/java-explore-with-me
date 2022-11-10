@@ -8,6 +8,7 @@ import org.springframework.web.bind.annotation.*;
 import ru.practicum.server.event.client.EventClient;
 import ru.practicum.server.event.dto.EventFullDto;
 import ru.practicum.server.event.dto.HitDto;
+import ru.practicum.server.event.model.PublicEventFilter;
 import ru.practicum.server.event.model.SortEvent;
 import ru.practicum.server.event.service.publ.EventPublicService;
 
@@ -53,20 +54,24 @@ public class PublicEventController {
                                            @RequestParam(value = "text") String text,
                                            @RequestParam(value = "categories") List<Integer> categories,
                                            @RequestParam(value = "paid") boolean paid,
-                                           @RequestParam(value = "rangeStart") String rangeStart,
-                                           @RequestParam(value = "rangeEnd") String rangeEnd,
+                                           @RequestParam(value = "rangeStart", defaultValue = "") String rangeStart,
+                                           @RequestParam(value = "rangeEnd", defaultValue = "") String rangeEnd,
                                            @RequestParam(value = "onlyAvailable", defaultValue = "false") boolean onlyAvailable,
-                                           @RequestParam(value = "sort") SortEvent sort,
+                                           @RequestParam(value = "sort", defaultValue = "EVENT_DATE") SortEvent sort,
                                            HttpServletRequest request
     ) {
         int page = from / size;
         final PageRequest pageRequest = PageRequest.of(page, size);
         eventClient.postHit(new HitDto(null, "ewm-main-service", request.getRequestURI(),
                 request.getRemoteAddr(), LocalDateTime.now().format(formatter)));
-        LocalDateTime start = LocalDateTime.parse(rangeStart, formatter);
-        LocalDateTime end = LocalDateTime.parse(rangeEnd, formatter);
         log.debug("Получен запрос на получение списка событий по заданным параметрам");
-        return eventPublicService.getAllEvents(text, categories, paid, start, end, onlyAvailable, sort, pageRequest);
+        return eventPublicService.getAllEvents(new PublicEventFilter(
+                text,
+                categories,
+                paid,
+                rangeStart.isEmpty() ? null : rangeStart,
+                rangeEnd.isEmpty() ? null : rangeEnd
+        ), onlyAvailable, sort, pageRequest);
     }
 
     /**

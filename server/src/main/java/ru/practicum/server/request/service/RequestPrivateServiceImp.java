@@ -115,7 +115,7 @@ public class RequestPrivateServiceImp implements RequestPrivateService {
         checkEvent(eventId);
         if (userId != eventRepository.findById(eventId).get().getInitiatorId()) {
             log.warn("Пользователь не является инициатором события");
-            throw new BadRequestError("Пользователь не является инициатором события");
+            throw new RuntimeException("Пользователь не является инициатором события");
         }
         List<Request> requests = requestRepository.findAllByEvent(eventId);
         List<ParticipationRequestDto> participationRequestDtoList = new ArrayList<>();

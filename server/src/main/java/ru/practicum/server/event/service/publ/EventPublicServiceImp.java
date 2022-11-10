@@ -6,23 +6,18 @@ import lombok.NonNull;
 import lombok.experimental.FieldDefaults;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.domain.PageRequest;
-import org.springframework.lang.Nullable;
 import org.springframework.stereotype.Service;
 import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.model.Category;
 import ru.practicum.server.event.client.EventClient;
 import ru.practicum.server.event.EventRepository;
 import ru.practicum.server.event.dto.EventFullDto;
-import ru.practicum.server.event.model.Event;
-import ru.practicum.server.event.model.QEvent;
-import ru.practicum.server.event.model.SortEvent;
-import ru.practicum.server.event.model.State;
+import ru.practicum.server.event.model.*;
 import ru.practicum.server.exeption.NotFoundError;
 import ru.practicum.server.request.RequestRepository;
 import ru.practicum.server.user.UserRepository;
 import ru.practicum.server.user.model.User;
 
-import javax.validation.constraints.NotBlank;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
@@ -44,35 +39,30 @@ public class EventPublicServiceImp implements EventPublicService {
 
     /**
      * репозиторий событий
-     *
      * @see EventRepository
      */
     EventRepository eventRepository;
 
     /**
      * репозиторий категорий
-     *
      * @see CategoryRepository
      */
     CategoryRepository categoryRepository;
 
     /**
      * репозиторий пользователей
-     *
      * @see UserRepository
      */
     UserRepository userRepository;
 
     /**
      * репозиторий запросов на участие в событиях
-     *
      * @see RequestRepository
      */
     RequestRepository requestRepository;
 
     /**
      * клиент для взаимодействия с сервисом статистики
-     *
      * @see EventClient
      */
     EventClient eventClient;
@@ -89,16 +79,13 @@ public class EventPublicServiceImp implements EventPublicService {
     }
 
     /**
-     * @param text       - не должен быть null
-     * @param categories - не должен быть null
+     * @param publicEventFilter - параметры запроса
      * @param sort       - не должен быть null
-     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
+     * @see EventPublicService#getAllEvents(PublicEventFilter, boolean, SortEvent, PageRequest)
      */
     @Override
-    public List<EventFullDto> getAllEvents(@NotBlank String text, @NonNull List<Integer> categories, boolean paid, LocalDateTime rangeStart,
-                                           LocalDateTime rangeEnd, boolean onlyAvailable, @NonNull SortEvent sort, PageRequest pageRequest) {
-        Iterable<Event> events = eventRepository.findAll(formatExpression(text, categories, paid, rangeStart,
-                rangeEnd), pageRequest);
+    public List<EventFullDto> getAllEvents(PublicEventFilter publicEventFilter, boolean onlyAvailable, @NonNull SortEvent sort, PageRequest pageRequest) {
+        Iterable<Event> events = eventRepository.findAll(formatExpression(publicEventFilter), pageRequest);
         List<EventFullDto> eventFullDtoList = new ArrayList<>();
         for (Event event : events) {
             User user = userRepository.findById(event.getInitiatorId()).get();
@@ -157,32 +144,30 @@ public class EventPublicServiceImp implements EventPublicService {
     /**
      * метод для определения фильтрации получения списка событий
      *
-     * @param text - не должен быть null
-     * @param paid - не должен быть null
-     * @see EventPublicService#getAllEvents(String, List, boolean, LocalDateTime, LocalDateTime, boolean, SortEvent, PageRequest)
+     * @param publicEventFilter - параметры запроса
+     * @see EventPublicService#getAllEvents(PublicEventFilter, boolean, SortEvent, PageRequest)
      */
-    private BooleanExpression formatExpression(@NotBlank String text, List<Integer> categoriesList, @Nullable boolean paid, LocalDateTime rangeStart,
-                                               LocalDateTime rangeEnd) {
+    private BooleanExpression formatExpression(PublicEventFilter publicEventFilter) {
         BooleanExpression result = QEvent.event.state.eq(State.PUBLISHED);
-        result = result.and(QEvent.event.description.likeIgnoreCase(text)
-                .or(QEvent.event.annotation.likeIgnoreCase(text)));
+        result = result.and(QEvent.event.description.likeIgnoreCase(publicEventFilter.getText())
+                .or(QEvent.event.annotation.likeIgnoreCase(publicEventFilter.getText())));
 
-        if (categoriesList != null) {
+        if (publicEventFilter.getCategories() != null) {
             List<Long> categories = new ArrayList<>();
-            for (Integer i : categoriesList) {
+            for (Integer i : publicEventFilter.getCategories()) {
                 categories.add(i.longValue());
             }
             result = result.and(QEvent.event.categoryId.in(categories));
         }
-        result = result.and(QEvent.event.paid.eq(paid)); // уточнить
-        if (rangeStart != null && rangeEnd != null) {
+        result = result.and(QEvent.event.paid.eq(publicEventFilter.isPaid()));
+        if (publicEventFilter.getRangeStart() != null && publicEventFilter.getRangeEnd() != null) {
             result = result.and(QEvent.event.eventDate.after(LocalDateTime.now()));
         }
-        if (rangeStart != null) {
-            result = result.and(QEvent.event.eventDate.after(rangeStart));
+        if (publicEventFilter.getRangeStart() != null) {
+            result = result.and(QEvent.event.eventDate.after(LocalDateTime.parse(publicEventFilter.getRangeStart(), formatter)));
         }
-        if (rangeEnd != null) {
-            result = result.and(QEvent.event.eventDate.before(rangeEnd));
+        if (publicEventFilter.getRangeEnd() != null) {
+            result = result.and(QEvent.event.eventDate.before(LocalDateTime.parse(publicEventFilter.getRangeEnd(), formatter)));
         }
         return result;
     }

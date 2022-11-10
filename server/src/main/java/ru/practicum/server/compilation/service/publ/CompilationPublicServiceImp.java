@@ -146,17 +146,6 @@ public class CompilationPublicServiceImp implements CompilationPublicService {
     }
 
     /**
-     * Метод проверки наличия подборки по ID в репозитории
-     * @throws NotFoundError - при отсутствии подборки по ID
-     * */
-    public void checkCompilation(long compilationId) {
-        if (!compilationRepository.existsById(compilationId)) {
-            log.warn("Подборки ID: " + compilationId + ", не найдено!");
-            throw new NotFoundError("Подборки ID: " + compilationId + ", не найдено!");
-        }
-    }
-
-    /**
      * Метод проверки наличия подборки по ID в репозитории и его получения
      * @return возвращает подборку по ID
      * @throws NotFoundError - при отсутствии подборки по ID

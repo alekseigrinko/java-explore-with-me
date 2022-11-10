@@ -12,7 +12,7 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public abstract class ApiError extends RuntimeException {
+public abstract class ApiErrorCustom {
     /**
      * Код статуса HTTP-ответа
      * */

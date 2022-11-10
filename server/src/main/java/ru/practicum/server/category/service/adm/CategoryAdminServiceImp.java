@@ -7,7 +7,10 @@ import ru.practicum.server.category.CategoryRepository;
 import ru.practicum.server.category.dto.CategoryDto;
 import ru.practicum.server.category.dto.NewCategoryDto;
 import ru.practicum.server.category.model.Category;
+import ru.practicum.server.exeption.BadRequestError;
 import ru.practicum.server.exeption.NotFoundError;
+
+import javax.validation.constraints.NotNull;
 
 import static ru.practicum.server.category.CategoryMapper.toCategory;
 import static ru.practicum.server.category.CategoryMapper.toCategoryDto;
@@ -45,7 +48,11 @@ public class CategoryAdminServiceImp implements CategoryAdminService {
      * @param categoryDto - не должен быть null
      * */
     @Override
-    public CategoryDto updateCategory(@NonNull CategoryDto categoryDto) {
+    public CategoryDto updateCategory(@NotNull CategoryDto categoryDto) {
+        if (categoryDto == null) {
+            log.warn("Пустая информация для обновления категории");
+            throw new BadRequestError("Пустая информация для обновления категории");
+        }
         Category categoryInMemory = returnCategoryWithCheck(categoryDto.getId());
         if (categoryDto.getName() != null) {
             categoryInMemory.setName(categoryDto.getName());

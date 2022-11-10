@@ -244,7 +244,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     public void checkEvent(long eventId) {
         if (!eventRepository.existsById(eventId)) {
             log.warn("События ID: " + eventId + ", не найдено!");
-            throw new NotFoundError("События ID: " + eventId + ", не найдено!");
+            throw new RuntimeException("События ID: " + eventId + ", не найдено!");
         }
     }
 
@@ -255,7 +255,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     public void checkCompilation(long compilationId) {
         if (!compilationRepository.existsById(compilationId)) {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
-            throw new NotFoundError("Подборки ID: " + compilationId + ", не найдено!");
+            throw new RuntimeException("Подборки ID: " + compilationId + ", не найдено!");
         }
     }
 
@@ -267,7 +267,7 @@ public class CompilationAdminServiceImp implements CompilationAdminService {
     public Compilation returnCompilationWithCheck(long compilationId) {
         return compilationRepository.findById(compilationId).orElseThrow(() -> {
             log.warn("Подборки ID: " + compilationId + ", не найдено!");
-            throw new NotFoundError("Подборки ID: " + compilationId + ", не найдено!");
+            throw new RuntimeException("Подборки ID: " + compilationId + ", не найдено!");
         });
     }
 }

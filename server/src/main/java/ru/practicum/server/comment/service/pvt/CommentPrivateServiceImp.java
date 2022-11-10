@@ -123,7 +123,7 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
         Comment comment = returnCommentWithCheck(commentId);
         if (comment.getAuthor() != authorId) {
             log.warn("Пользователь не является автором комментария");
-            throw new BadRequestError("Пользователь не является автором комментария");
+            throw new RuntimeException("Пользователь не является автором комментария");
         }
         log.debug("Предоставлены данные комментария ID: " + commentId);
         return returnCommentRequestDto(comment);
@@ -139,17 +139,6 @@ public class CommentPrivateServiceImp implements CommentPrivateService {
         return commentRepository.findAllByAuthor(authorId, pageRequest).stream()
                 .map(this::returnCommentRequestDto)
                 .collect(Collectors.toList());
-    }
-
-    /**
-     * метод проверки наличия события по ID в репозитории
-     * @throws NotFoundError - при отсутствии события по ID
-     */
-    private void checkEvent(long eventId) {
-        if (!eventRepository.existsById(eventId)) {
-            log.warn("Событие ID: " + eventId + ", не найдено!");
-            throw new NotFoundError("Событие ID: " + eventId + ", не найдено!");
-        }
     }
 
     /**
