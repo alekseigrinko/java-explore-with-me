@@ -26,7 +26,7 @@ public class Compilation {
      * Параметр названия подборки
      * Не может быть пустым
      * */
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 512)
     String title;
 
     /**

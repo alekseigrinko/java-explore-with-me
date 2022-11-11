@@ -25,6 +25,6 @@ public class Category {
      * Параметр имени категории
      * Не может быть пустым, а также должен быть уникальным
      * */
-    @Column(name = "name", nullable = false, unique = true)
+    @Column(name = "name", nullable = false, unique = true, length = 512)
     String name;
 }

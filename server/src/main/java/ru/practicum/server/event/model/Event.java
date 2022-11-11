@@ -26,14 +26,14 @@ public class Event {
      * Параметр названия события
      * Не может быть пустым
      * */
-    @Column(name = "title", nullable = false)
+    @Column(name = "title", nullable = false, length = 512)
     String title;
 
     /**
      * Параметр описание события
      * Не может быть пустым
      * */
-    @Column(name = "description", nullable = false)
+    @Column(name = "description", nullable = false, length = 5120)
     String description;
 
 
@@ -41,7 +41,7 @@ public class Event {
      * Параметр аннотации события
      * Не может быть пустым
      * */
-    @Column(name = "annotation", nullable = false)
+    @Column(name = "annotation", nullable = false, length = 5120)
     String annotation;
 
     /**
